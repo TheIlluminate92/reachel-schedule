@@ -9,7 +9,8 @@ provider fixtures and do not contact OpenAI or Google.
 - Real screenshot reached OpenAI and produced a review list.
 - Google service-account JSON key downloaded by the user.
 - Live Google read access and event creation have not been verified here.
-- The v0.2 theme and Docker icon have not yet been deployed to the server.
+- The user confirmed the v0.2 witch theme works on the server. The v0.3
+  heart/stethoscope emblem and copy cleanup still need live deployment.
 
 ## Check in this order
 
@@ -17,8 +18,8 @@ provider fixtures and do not contact OpenAI or Google.
    session remains active. Check narrow-screen layout, date inputs, and buttons.
 2. Check the purple/orange theme and witch-hat icon. Blue must still mean work;
    green must still mean ignored. Check that text and inputs are readable.
-3. Confirm Connection status shows OpenAI and Google configured. This reports
-   configuration presence; it does not by itself prove Google access.
+3. Confirm screenshot parsing works and the calendar check is available. In
+   v0.3, connection configuration details are kept off the everyday phone page.
 4. Upload a real Timpani screenshot. Check month, year, every blue dot, and any
    dates having both blue and green. Compare each extracted date to the image.
 5. Exercise manual correction: add a missing date, edit a date, remove a date.

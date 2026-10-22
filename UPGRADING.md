@@ -4,13 +4,13 @@ Do not run install-unraid.sh again: it intentionally refuses to overwrite an
 existing installation. Do not replace the config directory or saved template
 with files from GitHub. Your keys and generated login settings live there.
 
-## v0.1 to v0.2: theme-only update
+## v0.1 / v0.2 to v0.3: appearance-only update
 
 This release changes public/index.html, public/style.css, public/app.js display
 punctuation, public/icon.svg, and public/manifest.webmanifest. Backend calendar
 and authentication behavior is unchanged.
 
-1. Download and extract the v0.2 source package on your computer.
+1. Download and extract the v0.3 source package on your computer.
 2. Back up the existing app/public directory from the appdata share.
 3. Copy the five files from the new public directory over the files in:
    /mnt/user/appdata/reachel-schedule/app/public/
@@ -33,7 +33,7 @@ Use the same host/port as the app. This is an icon URL, not a WebUI login URL.
 The static icon is accessible without a password and contains no private data.
 If needed, switch Docker Edit to Advanced View, set Icon URL to that address,
 and Apply. Unraid may cache the old icon. Reload the Docker page after updating;
-the new URL can use /icon.svg?v=0.2 if a cache refresh is needed.
+the new URL can use /icon.svg?v=0.3 if a cache refresh is needed.
 
 The icon is served by the running app. A stopped container cannot serve it;
 Unraid's cached image may remain available. A private GitHub raw URL is not a
@@ -51,3 +51,8 @@ Reachel-Schedule, replace the documented source files, then start it. Preserve
 config/, the Docker Edit settings, and the template. Run npm test on the source
 before deployment and follow CHECKLIST.md afterward. Never run git clean or a
 bulk overwrite against the directory holding credentials.
+
+For v0.3, copy all five public files together so HTML and browser script stay
+in sync. The connection-status block was removed from both. Backend files and
+credentials do not need replacing. Re-add the phone shortcut if its icon
+remains cached. The new Docker Icon URL can end in /icon.svg?v=0.3.

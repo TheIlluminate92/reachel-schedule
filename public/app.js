@@ -55,13 +55,7 @@ async function initialize() {
     $('login-panel').hidden = true; $('app-panel').hidden = false; $('logout').hidden = false;
     $('demo-banner').hidden = !state.demo; $('demo').hidden = !state.demo;
     $('check').disabled = !state.calendarConfigured || state.demo;
-    $('calendar-help').textContent = state.demo ? 'Calendar writes are disabled in demo mode.' : state.calendarConfigured ? 'Ready to check and add shifts to Reachel Test.' : 'Calendar setup is pending. You can read and review the screenshot now.';
-    $('connections').replaceChildren();
-    for (const [name, value] of [['Image reader', state.openaiConfigured ? 'Key configured · not yet verified' : 'API key needed'], ['Google Calendar', state.calendarConfigured ? 'Credentials configured · check to verify' : 'Setup needed'], ['Calendar', state.calendar], ['Mode', state.demo ? 'Demo · no calendar writes' : 'Review before adding']]) {
-      const row = document.createElement('div'); row.className = 'connection';
-      for (const text of [name, value]) { const span = document.createElement('span'); span.textContent = text; row.append(span); }
-      $('connections').append(row);
-    }
+    $('calendar-help').textContent = state.demo ? 'Calendar writes are disabled in demo mode.' : state.calendarConfigured ? '' : 'Calendar connection needs attention. You can still review your dates.';
     $('parse').disabled = !selectedFile || !state.openaiConfigured || state.demo; refreshSave();
     if (new URL(location.href).searchParams.get('shared') === '1') notice('Choose the screenshot you want to send.');
   } catch (err) { showLogin(); if (err.message !== 'Please sign in.') notice(err.message, true); }

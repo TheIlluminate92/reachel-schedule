@@ -1,4 +1,4 @@
-# Reachel Schedule — v0.1
+# Reachel Schedule - v0.3
 
 A small, self-hosted phone page for sending an HCA Timpani screenshot to
 OpenAI, reviewing the extracted work nights, and adding missing shifts to
@@ -19,8 +19,9 @@ Provider responses in these tests are fixtures.
 **Live status:** installed on Unraid; the user successfully parsed a real
 Timpani screenshot and reviewed the returned dates. A Google JSON key has been
 downloaded. Live service-account reads and writes still need verification.
-The v0.2 witch theme has not yet been deployed on Unraid or visually verified
-on the phone. Offline tests do not prove live Google permissions.
+The user confirmed the v0.2 theme works. The v0.3 heart/stethoscope artwork
+and simpler copy still need live deployment and a phone visual check. Offline
+tests do not prove live Google permissions.
 
 This version uses a home-screen shortcut and file picker. Native Android/iOS
 **Share → Send Schedule** is a later step after the phone platform is known.
@@ -278,3 +279,14 @@ See [UPGRADING.md](UPGRADING.md) for an existing Unraid installation and
 See [SECURITY.md](SECURITY.md) for credential handling and access limitations.
 The v0.2 theme changes the page, icon, and manifest only; calendar rules,
 authentication requirements, and the destination remain the same.
+
+## v0.3 appearance and everyday use
+
+The emblem blends a stylized anatomical heart, stethoscope, ECG trace, steel
+spikes, crescent moon, and witch hat. It is decorative, not a clinical diagram.
+The phone page calls the destination My night shifts; the server still uses
+only Reachel Test. Connection/debug information is omitted from the everyday
+page; configuration presence remains available via authenticated /api/status.
+Review and conflict notices remain visible. No automatic calendar deletions
+were added. To re-test missing dates, remove only the intended events yourself,
+then preview and check that those dates are new before confirming an import.

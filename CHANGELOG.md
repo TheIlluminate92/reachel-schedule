@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0
+
+- Combined the witch theme with an anatomical heart, stethoscope, ECG line, and
+  steel-colored spikes inspired by heavy-metal artwork. No flashing animation.
+- Simplified the everyday upload/review/save copy and removed connection/debug
+  details from the phone page. The actual calendar stays Reachel Test.
+- Added versioned static-asset URLs to refresh the changed artwork and script.
+- Kept date review, duplicate checks, conflict warnings, password requirements,
+  screenshot privacy disclosure, and all backend behavior.
+
+
 ## 0.2.0
 
 - Moonlit Halloween theme: purple panels, orange buttons, crescent moon and

@@ -3,28 +3,28 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#181222"><meta name="description" content="Turn Reachel’s blue-dot work nights into Google Calendar shifts.">
-  <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/style.css">
-  <title>Reachel's Night Shift</title><script src="/app.js" defer></script>
+  <link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg?v=0.3"><link rel="stylesheet" href="/style.css?v=0.3">
+  <title>Reachel's Night Shift</title><script src="/app.js?v=0.3" defer></script>
 </head>
 <body>
   <main>
-    <div class="night-art" aria-hidden="true"><svg viewBox="0 0 220 130" fill="none"><circle cx="152" cy="58" r="42" fill="#f3cc88"/><circle cx="169" cy="44" r="38" fill="#21172f"/><path d="m46 94 33-66 18 26 32 37Z" fill="#9874bf"/><path d="m79 28 24 1-11 11" fill="#9874bf"/><path d="m55 77 62 0 5 13-74 0Z" fill="#eeaa69"/><rect x="80" y="77" width="17" height="13" rx="2" stroke="#21172f" stroke-width="3"/><ellipse cx="85" cy="96" rx="61" ry="12" fill="#765394"/><path d="m27 32 3-9 3 9 9 3-9 3-3 9-3-9-9-3Zm154 66 2-6 2 6 6 2-6 2-2 6-2-6-6-2Z" fill="#f3cc88"/><circle cx="122" cy="16" r="2" fill="#f3cc88"/><circle cx="204" cy="48" r="2" fill="#f3cc88"/></svg></div>
-    <header><a class="brand" href="/" aria-label="Send Schedule home"><img class="brand-icon" src="/icon.svg" alt="" width="38" height="38"> Night Shift</a><button id="logout" class="text-button" hidden>Sign out</button></header>
+    <div class="night-art" aria-hidden="true"><img src="/icon.svg?v=0.3" alt="" width="240" height="240"></div>
+    <header><a class="brand" href="/" aria-label="Send Schedule home"><img class="brand-icon" src="/icon.svg?v=0.3" alt="" width="38" height="38"> Night Shift</a><button id="logout" class="text-button" hidden>Sign out</button></header>
     <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
     <section id="login-panel" class="panel" hidden>
-      <div class="eyebrow">REACHEL’S WORK NIGHTS</div><h1>A little magic.<br>A sorted schedule.</h1><p class="lead">Choose your schedule. Check the dates. Add your shifts.</p>
+      <div class="eyebrow">REACHEL’S WORK NIGHTS</div><h1>A little magic.<br>A sorted schedule.</h1><p class="lead">Your schedule, all in one place.</p>
       <form id="login-form"><label for="password">Schedule password</label><input id="password" type="password" autocomplete="current-password" required><button class="primary" type="submit">Continue</button></form><p class="small">Your phone stays signed in for up to 90 days.</p>
     </section>
     <section id="app-panel" hidden>
-      <div class="eyebrow">REACHEL’S WORK NIGHTS</div><h1>Work nights,<br>under a spell.</h1><p class="lead">Your blue dots become overnight shifts.</p>
-      <div class="destination"><span class="calendar-icon" aria-hidden="true">&#9789;</span><div><strong>Reachel Test</strong><span>6:30 PM → 7:00 AM · Central Time</span></div><span class="destination-badge">Destination</span></div>
+      <div class="eyebrow">REACHEL’S WORK NIGHTS</div><h1>Work nights,<br>under a spell.</h1><p class="lead">Your work nights. A little less work.</p>
+      <div class="destination"><span class="calendar-icon" aria-hidden="true">&#9789;</span><div><strong>My night shifts</strong><span>6:30 PM → 7:00 AM · Central Time</span></div></div>
       <div id="demo-banner" class="warning" hidden>Demo mode. Example dates only; no photo reading or calendar changes.</div>
       <section class="panel upload-panel">
         <div class="step"><span>1</span><h2>Choose your screenshot</h2></div>
-        <p class="muted">Keep the month, year, and date numbers visible.</p>
-        <label class="upload-target" for="screenshot"><span class="upload-icon" aria-hidden="true">＋</span><strong id="upload-label">Choose schedule screenshot</strong><span>PNG, JPEG, or WebP · up to 10 MB</span></label>
+        <p class="muted">Include the month and dates.</p>
+        <label class="upload-target" for="screenshot"><span class="upload-icon" aria-hidden="true">＋</span><strong id="upload-label">Choose screenshot</strong><span>PNG, JPEG, or WebP · up to 10 MB</span></label>
         <input id="screenshot" type="file" accept="image/png,image/jpeg,image/webp" class="file-input">
-        <div id="image-preview" hidden><img id="preview-image" alt="Your selected schedule screenshot"><button id="change-image" class="text-button">Choose a different screenshot</button></div>
+        <div id="image-preview" hidden><img id="preview-image" alt="Your selected schedule screenshot"><button id="change-image" class="text-button">Change screenshot</button></div>
         <div class="dot-key"><span><i class="dot blue"></i>Blue = work</span><span><i class="dot green"></i>Green = ignored</span></div>
         <details><summary>Screenshot doesn’t show the year?</summary><label for="year">Year for this schedule</label><input id="year" type="number" min="2020" max="2099" placeholder="e.g. 2026"><p class="small">Only used when the screenshot has no year.</p></details>
         <button id="parse" class="primary" disabled>Read my schedule</button>
@@ -34,17 +34,16 @@
       <section id="review-panel" class="panel" hidden>
         <div class="step"><span>2</span><h2>Check your work nights</h2></div><p id="period" class="muted"></p>
         <div id="issues" class="warning" hidden></div>
-        <p class="small">Each date is the night your shift <strong>starts</strong>. The shift ends at 7:00 AM the next day.</p>
+        <p class="small">Dates show the night your shift <strong>starts</strong>.</p>
         <div id="dates"></div><button id="add-date" class="text-button">＋ Add a missing date</button>
-        <div class="review-actions"><button id="check" class="secondary">Check for existing shifts</button><span id="check-status" class="small" aria-live="polite"></span></div>
-        <label class="confirmation"><input id="confirmed" type="checkbox"><span>I checked these dates against the blue dots.</span></label>
-        <button id="save" class="primary" disabled>Add shifts to Reachel Test</button>
-        <p id="calendar-help" class="small"></p><p class="small">Existing shifts are skipped. Different shift times are flagged for review. This version does not remove or change previous shifts.</p>
+        <div class="review-actions"><button id="check" class="secondary">Check calendar</button><span id="check-status" class="small" aria-live="polite"></span></div>
+        <label class="confirmation"><input id="confirmed" type="checkbox"><span>These work nights look right.</span></label>
+        <button id="save" class="primary" disabled>Add my shifts</button>
+        <p id="calendar-help" class="small"></p><p class="small">Shifts already on your calendar are skipped.</p>
       </section>
       <section id="result-panel" class="panel" hidden><div class="step"><span>✓</span><h2 id="result-title">Calendar updated</h2></div><div id="results"></div><button id="another" class="secondary">Read another schedule</button></section>
-      <details class="setup"><summary>Connection status</summary><div id="connections"></div><p class="small">API keys and Google credentials are configured on the server. They are never entered here.</p></details>
     </section>
-    <footer>A little practical magic for Reachel's work nights.</footer>
+    <footer>A little magic. A lot of heart.</footer>
   </main>
 </body>
 </html>
