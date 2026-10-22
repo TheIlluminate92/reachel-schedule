@@ -45,8 +45,10 @@ refresh only these container-specific cache files:
 - /var/lib/docker/unraid/images/Reachel-Schedule-icon.png
 - /usr/local/emhttp/state/plugins/dynamix.docker.manager/images/Reachel-Schedule-icon.png
 
-Do not remove their directories or the shared question.png fallback. Cache
-behavior and private registry pulls still require live verification on Unraid.
+Do not remove their directories or the shared question.png fallback. The first
+private image pull and native update succeeded on Waz-Server. The app's PNG
+responded with HTTP 200 while the Docker page still showed a question mark.
+That UI state is separate from whether the new image is running.
 
 ## Routine updates
 
@@ -58,6 +60,67 @@ inside the image. Do not copy them into the old host app directory.
 Reload the page. Re-add a phone shortcut if its icon remains cached. Verify
 artwork, layout, login, review and conflict warnings. No dummy calendar events
 or deletions belong to an image update. Actual imports require explicit review.
+
+The native updater can run quietly from a terminal; its progress is normally
+published to the Docker page. Avoid starting a second update while the first
+is still running. Afterward verify the image and health, rather than judging
+completion by whether the terminal printed progress.
+
+## Docker icon still shows a question mark
+
+After the new image is healthy, the following Unraid-terminal command verifies
+the live PNG, backs up only this container's two icon caches and Docker page
+metadata, invokes Unraid's own icon downloader, and changes only this
+container's icon entry in that metadata. It does not recreate the container,
+copy app source, or touch credentials. Refresh the Docker page afterward.
+This repair still needs live verification on the server.
+
+```bash
+php <<'PHP'
+<?php
+$docroot = '/usr/local/emhttp';
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+$name = 'Reachel-Schedule';
+$image = 'ghcr.io/theilluminate92/reachel-schedule:latest';
+$url = 'http://192.168.2.2:3080/docker-icon.png';
+$templates = new DockerTemplates();
+if ($templates->getTemplateValue($image, 'Icon', 'all', $name) !== $url) {
+    fwrite(STDERR, "Set this container's template Icon URL to $url first.\n");
+    exit(1);
+}
+$ch = curl_init($url);
+curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FAILONERROR => true, CURLOPT_TIMEOUT => 10]);
+$bytes = curl_exec($ch);
+curl_close($ch);
+if (!is_string($bytes) || strlen($bytes) < 24 || substr($bytes, 0, 8) !== "\x89PNG\r\n\x1a\n") {
+    fwrite(STDERR, "The app did not return a valid PNG. No caches changed.\n");
+    exit(1);
+}
+$size = unpack('Nwidth/Nheight', substr($bytes, 16, 8));
+if ($size['width'] !== 512 || $size['height'] !== 512) exit(1);
+$stamp = date('Ymd-His');
+$state = $dockerManPaths['webui-info'];
+if (!is_file($state) || !copy($state, "$state.reachel-backup-$stamp")) exit(1);
+chmod("$state.reachel-backup-$stamp", 0600);
+foreach (['images', 'images-ram'] as $key) {
+    $file = $dockerManPaths[$key]."/$name-icon.png";
+    if (is_link($file)) exit(1);
+    if (is_file($file)) {
+        if (!copy($file, "$file.backup-$stamp") || !unlink($file)) exit(1);
+    }
+}
+$icon = $templates->getIcon($image, $name, $url);
+if (!$icon || !is_file($docroot.$icon) || hash_file('sha256', $docroot.$icon) !== hash('sha256', $bytes)) {
+    fwrite(STDERR, "Unraid could not cache the expected PNG. Backups retained.\n");
+    exit(1);
+}
+$info = DockerUtil::loadJSON($state);
+if (!isset($info[$name])) exit(1);
+$info[$name]['icon'] = $icon;
+DockerUtil::saveJSON($state, $info);
+echo "Reachel icon refreshed. Reload the Docker page.\n";
+PHP
+```
 
 ## Rollback
 

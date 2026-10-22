@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1
+
+- Simplified the artwork to a purple witch hat, gold crescent moon and a small
+  heart on the hatband. Removed the anatomical heart, stethoscope, ECG and spikes.
+- Regenerated the matching 512px Docker PNG from the SVG and versioned the page
+  asset URLs so browsers request the updated artwork.
+- Documented native Unraid updates and a targeted icon-cache refresh for the
+  Docker page's persistent question-mark fallback. No calendar/auth changes.
+
 ## 0.3.0
 
 - Added a GitHub Actions build that tests and publishes the complete app to

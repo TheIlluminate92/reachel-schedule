@@ -1,14 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" fill="none">
-<defs><linearGradient id="steel" x1="35" y1="40" x2="207" y2="192" gradientUnits="userSpaceOnUse"><stop stop-color="#f3eff8"/><stop offset=".35" stop-color="#8e819e"/><stop offset=".55" stop-color="#e2d9ed"/><stop offset="1" stop-color="#74637e"/></linearGradient><linearGradient id="blood" x1="91" y1="93" x2="152" y2="180" gradientUnits="userSpaceOnUse"><stop stop-color="#de718a"/><stop offset=".5" stop-color="#aa3556"/><stop offset="1" stop-color="#622844"/></linearGradient></defs>
-<circle cx="174" cy="49" r="27" fill="#f3cc88"/><circle cx="186" cy="40" r="24" fill="#21172f"/>
-<path d="m47 71 5-26 21 15M34 113l-15-17 24-4m10 66-27 1 16-20m145-61 18-18-3 28m-4 54 24 5-18 17" fill="#84728d" stroke="#c4b3cf" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="121" cy="119" r="85" stroke="url(#steel)" stroke-width="3"/>
-<path d="M119 94v-21c0-19 28-21 28-2v19m-19-30-3-14m12 14 4-14m6 18 12-9" stroke="url(#steel)" stroke-width="12" stroke-linecap="round"/>
-<path d="m103 101-10-23 9-8m19 32 24-14 14 8" stroke="#9985b8" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M114 94c-10-17-30-13-37 3-8 20-1 36 12 48 15 15 26 27 51 43 19-17 31-40 27-62-3-21-16-35-33-31l-11 10Z" fill="url(#blood)" stroke="#e6a6b6" stroke-width="2.5" stroke-linejoin="round"/>
-<path d="M119 106c-1 20 7 40 21 69m-20-56-17 10-9 14m34-4 19-12 13 4m-34 7-18 8m28 10 17-6" stroke="#f0b0bc" stroke-width="3" stroke-linecap="round" opacity=".85"/>
-<path d="m64 89 24-55 18 22 17 32Z" fill="#9874bf" stroke="#c4a1e2" stroke-width="2" stroke-linejoin="round"/><path d="m88 34 20-2-10 14" fill="#9874bf"/><path d="m70 73 46 0 5 13-57 0Z" fill="#edaa6b"/><rect x="86" y="74" width="15" height="12" rx="2" stroke="#35223f" stroke-width="3"/><ellipse cx="89" cy="91" rx="42" ry="8" fill="#765394" stroke="#ba95d7" stroke-width="2"/>
-<path d="M57 113v21c0 33 25 57 61 57s59-18 59-44v-9" stroke="url(#steel)" stroke-width="6" stroke-linecap="round"/><path d="m57 113-8-9m8 9 8-10" stroke="#d7bfeb" stroke-width="6" stroke-linecap="round"/><circle cx="177" cy="129" r="13" fill="#34233f" stroke="url(#steel)" stroke-width="5"/><circle cx="177" cy="129" r="5" fill="#bca4ce"/>
-<path d="M62 211h30l7-9 9 18 10-29 11 20h45" stroke="#edaa6b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="m37 40 2-7 2 7 7 2-7 2-2 7-2-7-7-2Zm162 147 2-6 2 6 6 2-6 2-2 6-2-6-6-2Z" fill="#f3cc88"/>
+  <title>Witch hat, crescent moon and a little heart</title>
+  <path d="M190 25a48 48 0 1 0 28 79 42 42 0 0 1-28-79Z" fill="#F3CC88"/>
+  <path d="m54 171 47-104q10-20 28-10l30 21-32-3 47 96Z" fill="#9E79C3"/>
+  <path d="m101 67 10-12-26 116H54Z" fill="#B69BD3"/>
+  <path d="m65 146 97 0 11 25H54Z" fill="#EDAA6B"/>
+  <ellipse cx="111" cy="176" rx="91" ry="18" fill="#79579B"/>
+  <path d="M110 166 99 155c-9-9 5-19 11-9 6-10 20 0 11 9Z" fill="#A73D65"/>
 </svg>

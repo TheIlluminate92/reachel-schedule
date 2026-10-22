@@ -1,4 +1,4 @@
-# Reachel Schedule - v0.3
+# Reachel Schedule - v0.3.1
 
 A small, self-hosted phone page for sending an HCA Timpani screenshot to
 OpenAI, reviewing the extracted work nights, and adding missing shifts to
@@ -19,9 +19,13 @@ Provider responses in these tests are fixtures.
 **Live status:** installed on Unraid; the user successfully parsed a real
 Timpani screenshot and reviewed the returned dates. A Google JSON key has been
 downloaded. Live service-account reads and writes still need verification.
-The user confirmed the v0.2 theme works. The v0.3 heart/stethoscope artwork
-and simpler copy still need live deployment and a phone visual check. Offline
-tests do not prove live Google permissions.
+The GitHub-built v0.3 image was deployed through Unraid's native updater;
+health and all six public assets were verified live. The v0.3.1 update simplifies
+the icon to a witch hat, crescent moon and a small heart; it still needs an
+Unraid image update and phone visual check. The Docker page has retained its
+question-mark fallback even while the PNG endpoint responds correctly; see
+[UPGRADING.md](UPGRADING.md) for the targeted cache refresh. The user reports
+the app's functions work; the latest live checks here did not create events.
 
 This version uses a home-screen shortcut and file picker. Native Android/iOS
 **Share → Send Schedule** is a later step after the phone platform is known.

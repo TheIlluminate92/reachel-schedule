@@ -9,14 +9,17 @@ provider fixtures and do not contact OpenAI or Google.
 - Real screenshot reached OpenAI and produced a review list.
 - Google service-account JSON key downloaded by the user.
 - Live Google read access and event creation have not been verified here.
-- The user confirmed the v0.2 witch theme works on the server. The v0.3
-  heart/stethoscope emblem and copy cleanup still need live deployment.
+- The GitHub-built v0.3 image was deployed through Unraid's native updater;
+  health and all six served assets matched the release. The Docker page still
+  showed its question-mark fallback despite a valid PNG response.
+- v0.3.1 simplifies the emblem to a witch hat, crescent moon and small heart.
+  Its Unraid image update, phone check and targeted icon-cache repair are pending.
 
 ## Check in this order
 
 1. Open the app on her phone on home Wi-Fi. Sign in, reload, and confirm the
    session remains active. Check narrow-screen layout, date inputs, and buttons.
-2. Check the purple/orange theme and heart/stethoscope icon. Blue must still mean work;
+2. Check the purple/orange theme and witch-hat/moon/heart icon. Blue must still mean work;
    green must still mean ignored. Check that text and inputs are readable.
 3. Confirm screenshot parsing works and the calendar check is available. In
    v0.3, connection configuration details are kept off the everyday phone page.
