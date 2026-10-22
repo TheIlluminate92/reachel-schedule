@@ -130,5 +130,20 @@ export function createApp(config, suppliedServices) {
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const config = loadConfig();
-  createApp(config).listen(config.port, '0.0.0.0', () => console.log(`Reachel Schedule listening on port ${config.port}. Demo: ${config.demo}.`));
+  const server = createApp(config);
+  let stopping = false;
+  for (const signal of ['SIGTERM', 'SIGINT']) {
+    process.on(signal, () => {
+      if (stopping) return;
+      stopping = true;
+      console.log(`Received ${signal}; closing the HTTP server.`);
+      server.close(err => {
+        if (err) console.error('HTTP shutdown failed.');
+        else console.log('HTTP server closed.');
+        process.exit(err ? 1 : 0);
+      });
+      server.closeIdleConnections();
+    });
+  }
+  server.listen(config.port, '0.0.0.0', () => console.log(`Reachel Schedule listening on port ${server.address().port}. Demo: ${config.demo}.`));
 }

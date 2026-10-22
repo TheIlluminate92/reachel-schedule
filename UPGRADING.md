@@ -66,6 +66,14 @@ published to the Docker page. Avoid starting a second update while the first
 is still running. Afterward verify the image and health, rather than judging
 completion by whether the terminal printed progress.
 
+From v0.3.2, the app logs the received stop signal and exits after its HTTP
+server closes. Idle connections close immediately; active requests may take
+longer. Update only when no screenshot read or intended calendar import is in
+progress. The image build measures an idle Docker stop and rejects abnormal
+exits or stop times of four seconds or more. This measures the app container,
+not Unraid's complete pull/update/UI sequence. Docker's health indication is
+also scheduled separately from when the app starts listening.
+
 ## Docker icon still shows a question mark
 
 After the new image is healthy, the following Unraid-terminal command verifies

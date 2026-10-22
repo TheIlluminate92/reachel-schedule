@@ -58,6 +58,14 @@ jobs:
             curl --fail --silent "http://$address$route" --output "/tmp/reachel-$asset"
             cmp "public/$asset" "/tmp/reachel-$asset"
           done
+          started=$(date +%s%N)
+          docker stop --time 5 "$container" >/dev/null
+          elapsed_ms=$(( ($(date +%s%N) - started) / 1000000 ))
+          exit_code=$(docker inspect --format '{{.State.ExitCode}}' "$container")
+          echo "Idle container stopped in ${elapsed_ms} ms; exit code ${exit_code}."
+          echo "Idle container shutdown: ${elapsed_ms} ms, exit ${exit_code}." >> "$GITHUB_STEP_SUMMARY"
+          test "$exit_code" = 0
+          test "$elapsed_ms" -lt 4000
       - name: Sign in to GitHub Container Registry
         shell: bash
         env:

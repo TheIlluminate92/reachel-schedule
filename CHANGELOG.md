@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.2
+
+- Changed the page tagline to “You work nights. Let’s make scheduling a little
+  less work.”
+- Handle SIGTERM/SIGINT explicitly: stop accepting requests, close idle HTTP
+  connections and exit after active requests finish. This is intended to avoid
+  idle stop-timeout waits; it does not shorten active calendar operations.
+- Added a Linux shutdown regression test and a real Docker stop timing check.
+  Publishing now requires the idle image to exit normally within four seconds.
+- Unraid's full update duration is separate from app shutdown and remains
+  unmeasured; registry, icon and container-recreation time may still contribute.
+
 ## 0.3.1
 
 - Simplified the artwork to a purple witch hat, gold crescent moon and a small

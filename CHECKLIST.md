@@ -14,6 +14,9 @@ provider fixtures and do not contact OpenAI or Google.
   showed its question-mark fallback despite a valid PNG response.
 - v0.3.1 simplifies the emblem to a witch hat, crescent moon and small heart.
   Its Unraid image update, phone check and targeted icon-cache repair are pending.
+- v0.3.2 adds explicit shutdown handling and a clearer scheduling tagline. Its
+  container stop timing is checked in Linux CI; Unraid update timing remains
+  a separate live check.
 
 ## Check in this order
 
