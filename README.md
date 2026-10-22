@@ -88,7 +88,17 @@ included.
 
 ## 3. Unraid / Docker
 
-### Normal Unraid Docker Edit form (recommended)
+### GitHub-built image and normal Unraid updates
+
+The app image is `ghcr.io/theilluminate92/reachel-schedule:latest`. GitHub
+Actions tests and publishes it on pushes to `main`. Existing installations
+using `node:24-alpine` need the one-time migration in [UPGRADING.md](UPGRADING.md)
+before Unraid's Update action can update the app. Preserve `/config` and all
+credentials; remove the old `/app` mapping so it cannot hide the image's files.
+The image stays private unless its owner explicitly changes package visibility.
+The Docker icon is available at `/docker-icon.png` after starting this image.
+
+### Original local-source installer (existing installation reference)
 
 The package includes `install-unraid.sh`. Run it as root from the extracted
 package directory on Waz-Server. It installs **only a new Reachel-Schedule

@@ -16,7 +16,7 @@ provider fixtures and do not contact OpenAI or Google.
 
 1. Open the app on her phone on home Wi-Fi. Sign in, reload, and confirm the
    session remains active. Check narrow-screen layout, date inputs, and buttons.
-2. Check the purple/orange theme and witch-hat icon. Blue must still mean work;
+2. Check the purple/orange theme and heart/stethoscope icon. Blue must still mean work;
    green must still mean ignored. Check that text and inputs are readable.
 3. Confirm screenshot parsing works and the calendar check is available. In
    v0.3, connection configuration details are kept off the everyday phone page.

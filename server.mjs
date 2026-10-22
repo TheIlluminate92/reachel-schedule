@@ -28,7 +28,7 @@ export function createApp(config, suppliedServices) {
   const safeEqual = (a, b) => { const aa = Buffer.from(a), bb = Buffer.from(b); return aa.length === bb.length && timingSafeEqual(aa, bb); };
   const attempts = new Map();
   let importQueue = Promise.resolve(), parseBusy = false, usage = { day: '', count: 0 };
-  const staticFiles = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
+  const staticFiles = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'], '/docker-icon.png': ['docker-icon.png', 'image/png'] };
   const publicDir = new URL('./public/', import.meta.url);
   function session(req) {
     const cookie = /(?:^|;\s*)schedule_session=([^;]+)/.exec(req.headers.cookie || '')?.[1];
@@ -60,7 +60,7 @@ export function createApp(config, suppliedServices) {
       if (req.method === 'GET' && staticFiles[url.pathname]) {
         const [name, mime] = staticFiles[url.pathname];
         const bytes = await readFile(new URL(name, publicDir));
-        res.writeHead(200, { 'Content-Type': mime + '; charset=utf-8' }); return res.end(bytes);
+        res.writeHead(200, { 'Content-Type': mime === 'image/png' ? mime : mime + '; charset=utf-8' }); return res.end(bytes);
       }
       if (req.method === 'POST') {
         if (req.headers.origin !== config.publicURL) throw new AppError('Open this app using its configured PUBLIC_URL.', 403);

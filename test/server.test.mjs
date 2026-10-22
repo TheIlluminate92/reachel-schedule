@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
+import { readFile } from 'node:fs/promises';
 import { createApp, loadConfig } from '../server.mjs';
 import { CALENDAR_ID } from '../core.mjs';
 
@@ -11,11 +12,23 @@ function request(server, path, { method = 'GET', headers = {}, body } = {}) {
     const req = Readable.from(body === undefined ? [] : [Buffer.isBuffer(body) ? body : Buffer.from(JSON.stringify(body))]);
     req.method = method; req.url = path; req.headers = { ...headers }; req.socket = { remoteAddress: '127.0.0.1' };
     const responseHeaders = {};
-    const res = { headersSent: false, status: 200, setHeader(k, v) { responseHeaders[k.toLowerCase()] = v; }, writeHead(status, h = {}) { this.status = status; this.headersSent = true; for (const [k, v] of Object.entries(h)) this.setHeader(k, v); }, end(data = '') { let parsed; try { parsed = JSON.parse(data); } catch { parsed = String(data); } resolve({ status: this.status, headers: responseHeaders, body: parsed }); } };
+    const res = { headersSent: false, status: 200, setHeader(k, v) { responseHeaders[k.toLowerCase()] = v; }, writeHead(status, h = {}) { this.status = status; this.headersSent = true; for (const [k, v] of Object.entries(h)) this.setHeader(k, v); }, end(data = '') { let parsed; try { parsed = JSON.parse(data); } catch { parsed = String(data); } resolve({ status: this.status, headers: responseHeaders, body: parsed, bytes: Buffer.isBuffer(data) ? data : Buffer.from(data) }); } };
     server.emit('request', req, res);
   });
 }
 const config = () => loadConfig({ APP_PASSWORD: 'a-test-password-123', APP_SECRET: 'a-test-secret-of-at-least-thirty-two-characters', PUBLIC_URL: 'http://localhost:3080', OPENAI_API_KEY: 'test-not-a-real-key', GOOGLE_APPLICATION_CREDENTIALS: 'fixture-not-a-real-key-file' });
+test('Unraid can fetch the genuine PNG without login or provider access', async () => {
+  const app = createApp(config(), { parse: () => assert.fail(), calendar: { list: () => assert.fail(), insert: () => assert.fail() } });
+  const response = await request(app, '/docker-icon.png');
+  assert.equal(response.status, 200);
+  assert.equal(response.headers['content-type'], 'image/png');
+  assert.deepEqual(response.bytes, await readFile(new URL('../public/docker-icon.png', import.meta.url)));
+  assert.equal(response.bytes.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
+  assert.equal(response.bytes.readUInt32BE(16), 512);
+  assert.equal(response.bytes.readUInt32BE(20), 512);
+  assert.equal((await request(app, '/api/status')).status, 401);
+  app.close();
+});
 async function login(app) {
   const login = await request(app, '/api/login', { method: 'POST', headers: { origin: 'http://localhost:3080', 'content-type': 'application/json' }, body: { password: 'a-test-password-123' } });
   assert.equal(login.status, 200);

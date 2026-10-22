@@ -1,0 +1,75 @@
+name: Publish app image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-app-image
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Build, test, and smoke-check the app image
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          tag="sha-${GITHUB_SHA}"
+          echo "APP_IMAGE=$image" >> "$GITHUB_ENV"
+          echo "APP_TAG=$tag" >> "$GITHUB_ENV"
+          docker build --pull \
+            --label "org.opencontainers.image.source=https://github.com/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --tag "$image:$tag" .
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --tmpfs /tmp:size=16m \
+            --volume "$PWD:/src:ro" --workdir /src \
+            --entrypoint node "$image:$tag" --test
+          container=$(docker run -d --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --tmpfs /tmp:size=16m \
+            --publish 127.0.0.1::3080 \
+            --env APP_PASSWORD=ci-only-password-not-a-real-login \
+            --env APP_SECRET=ci-only-session-secret-not-used-by-any-real-installation \
+            --env PUBLIC_URL=http://127.0.0.1:3080 \
+            --env DEMO_MODE=1 "$image:$tag")
+          trap 'docker rm -f "$container" >/dev/null' EXIT
+          address=$(docker port "$container" 3080/tcp)
+          for attempt in {1..30}; do
+            if curl --fail --silent "http://$address/healthz" >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent "http://$address/healthz" >/dev/null
+          for asset in index.html app.js style.css icon.svg docker-icon.png manifest.webmanifest; do
+            route="/$asset"
+            if [[ "$asset" == index.html ]]; then route=/; fi
+            curl --fail --silent "http://$address$route" --output "/tmp/reachel-$asset"
+            cmp "public/$asset" "/tmp/reachel-$asset"
+          done
+      - name: Sign in to GitHub Container Registry
+        shell: bash
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+      - name: Publish tested image
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker push "$APP_IMAGE:$APP_TAG"
+          docker tag "$APP_IMAGE:$APP_TAG" "$APP_IMAGE:latest"
+          docker push "$APP_IMAGE:latest"
+          echo "### Published app image" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`$APP_IMAGE:latest\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Rollback tag: \`$APP_IMAGE:$APP_TAG\`" >> "$GITHUB_STEP_SUMMARY"

@@ -2,6 +2,12 @@
 
 ## 0.3.0
 
+- Added a GitHub Actions build that tests and publishes the complete app to
+  GitHub Container Registry for normal Unraid image updates, with commit tags
+  for rollback and a documented one-time migration from the original Node image.
+- Serve the genuine PNG at `/docker-icon.png` without login so Unraid can load
+  the image's own Docker artwork instead of stale host-mounted files.
+
 - Added a genuine 512px PNG for the Unraid Docker icon and changed new-install
   template/label settings to a local file URL; no dependency on the app server.
 
