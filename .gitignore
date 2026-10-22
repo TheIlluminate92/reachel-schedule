@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+secrets/
+config/
+node_modules/
+*.zip
+*.pem
+*.key
+google.json
+container.env

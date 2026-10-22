@@ -1,0 +1,16 @@
+{
+  "name": "Reachel's Night Shift",
+  "short_name": "Night Shift",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#181222",
+  "theme_color": "#181222",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

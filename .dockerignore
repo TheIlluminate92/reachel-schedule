@@ -1,0 +1,8 @@
+.env
+.env.*
+secrets
+test
+*.zip
+README.md
+.git
+node_modules
