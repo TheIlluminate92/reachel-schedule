@@ -2,6 +2,9 @@
 
 ## 0.3.0
 
+- Added a genuine 512px PNG for the Unraid Docker icon and changed new-install
+  template/label settings to a local file URL; no dependency on the app server.
+
 - Combined the witch theme with an anatomical heart, stethoscope, ECG line, and
   steel-colored spikes inspired by heavy-metal artwork. No flashing animation.
 - Simplified the everyday upload/review/save copy and removed connection/debug

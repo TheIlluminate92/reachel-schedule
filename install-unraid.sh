@@ -17,7 +17,7 @@ if ss -H -ltn | awk '{print $4}' | grep -Eq ":${PORT}$"; then echo "TCP port $PO
 SOURCE=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 TEMPLATE=/boot/config/plugins/dockerMan/templates-user/my-Reachel-Schedule.xml
 if [[ -e "$TEMPLATE" || -e "$APP_ROOT" ]]; then echo 'An existing app directory or template was found. Nothing was overwritten.' >&2; exit 1; fi
-for file in server.mjs core.mjs services.mjs public/index.html public/app.js public/style.css public/icon.svg public/manifest.webmanifest; do
+for file in server.mjs core.mjs services.mjs public/index.html public/app.js public/style.css public/icon.svg public/docker-icon.png public/manifest.webmanifest; do
   [[ -f "$SOURCE/$file" ]] || { echo "Missing package file: $file" >&2; exit 1; }
 done
 docker info >/dev/null
@@ -26,7 +26,7 @@ docker pull node:24-alpine
 mkdir -p "$APP_ROOT/app/public" "$APP_ROOT/config/secrets"
 chmod 750 "$APP_ROOT/config" "$APP_ROOT/config/secrets"
 for file in server.mjs core.mjs services.mjs; do cp -- "$SOURCE/$file" "$APP_ROOT/app/$file"; done
-for file in index.html app.js style.css icon.svg manifest.webmanifest; do cp -- "$SOURCE/public/$file" "$APP_ROOT/app/public/$file"; done
+for file in index.html app.js style.css icon.svg docker-icon.png manifest.webmanifest; do cp -- "$SOURCE/public/$file" "$APP_ROOT/app/public/$file"; done
 APP_PASSWORD=$(openssl rand -hex 12)
 APP_SECRET=$(openssl rand -hex 32)
 PUBLIC_URL="http://$HOST_IP:$PORT"
@@ -54,7 +54,7 @@ cat > "$TEMPLATE" <<XML
   <Privileged>false</Privileged>
   <Shell>sh</Shell>
   <WebUI>http://[IP]:[PORT:3080]/</WebUI>
-  <Icon>$PUBLIC_URL/icon.svg?v=0.2</Icon>
+  <Icon>file://$APP_ROOT/app/public/docker-icon.png</Icon>
   <Overview>Read blue-dot work nights from Reachel's HCA Timpani screenshot. Preview and edit dates before adding to Reachel Test. Add your OpenAI key in this Edit form. Google Calendar is initially unconfigured.</Overview>
   <Category>Productivity:</Category>
   <ExtraParams>--user=99:100 --workdir=/app --read-only --cap-drop=ALL --security-opt=no-new-privileges --tmpfs=/tmp:rw,noexec,nosuid,size=16m --memory=512m --cpus=1 --restart=unless-stopped</ExtraParams>
@@ -82,7 +82,7 @@ docker run -d --name "$CONTAINER" --net bridge --user 99:100 --workdir /app \
   --tmpfs /tmp:rw,noexec,nosuid,size=16m --memory 512m --cpus 1 --restart unless-stopped \
   --label net.unraid.docker.managed=dockerman \
   --label "net.unraid.docker.webui=http://[IP]:[PORT:3080]/" \
-  --label "net.unraid.docker.icon=$PUBLIC_URL/icon.svg" \
+  --label "net.unraid.docker.icon=file://$APP_ROOT/app/public/docker-icon.png" \
   --publish "$HOST_IP:$PORT:3080/tcp" \
   --volume "$APP_ROOT/app:/app:ro" --volume "$APP_ROOT/config:/config:rw" \
   --env-file "$APP_ROOT/config/container.env" node:24-alpine node /app/server.mjs >/dev/null
