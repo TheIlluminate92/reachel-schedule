@@ -1,5 +1,13 @@
 # Updates through GitHub and Unraid
 
+## Session security fix
+
+After installing the logout/session fix, sign in again on each phone. Sessions
+are now tracked in server memory and are cleared by every restart or update,
+even with the same APP_SECRET. Logout revokes only the signed-out session;
+copying its old cookie cannot restore access. No new volume or setting is needed.
+Do not roll back to a version without this fix if session revocation is required.
+
 GitHub Actions builds the complete app, runs its offline tests, checks all six
 served public assets, and publishes this image on successful pushes to main:
 
@@ -139,3 +147,4 @@ Apply. Preserve /config and environment values. Return to latest to resume updat
 To undo the initial migration, restore the saved template with node:24-alpine
 and its read-only /app mapping to the preserved original app directory, then
 Apply. Keep configuration and credentials in place. Calendar events are unchanged.
+

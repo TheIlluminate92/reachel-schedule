@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Revoke signed-out sessions on the server so copied cookies cannot be replayed.
+  Active sessions are held in memory: restarting or updating requires fresh login
+  on all phones, including cookies issued by older versions. No new storage needed.
+- Reserve screenshot parsing before reading the upload, reject overlapping
+  requests, and release the reservation after success or any failure.
+- Add real-handler regressions for cookie replay, other sessions, restarts,
+  expiry, slow uploads, parser overlap, failure recovery, and daily limits.
+
 ## 0.3.2
 
 - Changed the page tagline to “You work nights. Let’s make scheduling a little
@@ -56,3 +66,4 @@
 
 - Initial screenshot parsing, editable review, fixed calendar destination,
   duplicate checks, signed login sessions, and Unraid Docker installation.
+

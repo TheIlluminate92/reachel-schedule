@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
 import { readFile } from 'node:fs/promises';
+import { createHmac } from 'node:crypto';
 import { createApp, loadConfig } from '../server.mjs';
 import { CALENDAR_ID } from '../core.mjs';
 
@@ -9,7 +10,7 @@ import { CALENDAR_ID } from '../core.mjs';
 // environment restricts network access). Provider calls are explicit fixtures.
 function request(server, path, { method = 'GET', headers = {}, body } = {}) {
   return new Promise(resolve => {
-    const req = Readable.from(body === undefined ? [] : [Buffer.isBuffer(body) ? body : Buffer.from(JSON.stringify(body))]);
+    const req = body instanceof Readable ? body : Readable.from(body === undefined ? [] : [Buffer.isBuffer(body) ? body : Buffer.from(JSON.stringify(body))]);
     req.method = method; req.url = path; req.headers = { ...headers }; req.socket = { remoteAddress: '127.0.0.1' };
     const responseHeaders = {};
     const res = { headersSent: false, status: 200, setHeader(k, v) { responseHeaders[k.toLowerCase()] = v; }, writeHead(status, h = {}) { this.status = status; this.headersSent = true; for (const [k, v] of Object.entries(h)) this.setHeader(k, v); }, end(data = '') { let parsed; try { parsed = JSON.parse(data); } catch { parsed = String(data); } resolve({ status: this.status, headers: responseHeaders, body: parsed, bytes: Buffer.isBuffer(data) ? data : Buffer.from(data) }); } };
@@ -86,3 +87,92 @@ test('setup rejects remote plaintext origins and short secrets', () => {
   assert.throws(() => loadConfig({ APP_PASSWORD: 'a-test-password', APP_SECRET: 'x'.repeat(40), PUBLIC_URL: 'http://schedule.example' }));
   assert.equal(loadConfig({ APP_PASSWORD: 'a-test-password', APP_SECRET: 'x'.repeat(40), PUBLIC_URL: 'http://192.168.2.2:3080' }).publicURL, 'http://192.168.2.2:3080');
 });
+test('logout revokes replay on protected reads and writes without revoking another phone', async () => {
+  let parses = 0, writes = 0;
+  const app = createApp(config(), { parse: async () => { parses++; }, calendar: { list: async () => [], insert: async () => { writes++; } } });
+  const first = await login(app), second = await login(app);
+  const denied = await request(app, '/api/logout', { method: 'POST', headers: { ...first, 'x-csrf-token': '' }, body: {} });
+  assert.equal(denied.status, 403);
+  assert.equal((await request(app, '/api/status', { headers: first })).status, 200);
+  const logout = await request(app, '/api/logout', { method: 'POST', headers: first, body: {} });
+  assert.equal(logout.status, 200);
+  assert.match(logout.headers['set-cookie'], /Max-Age=0/);
+  for (const path of ['/api/status', '/api/parse', '/api/check', '/api/import']) {
+    const result = await request(app, path, { method: path === '/api/status' ? 'GET' : 'POST', headers: first, body: path === '/api/status' ? undefined : { dates: ['2026-10-22'], confirmed: true } });
+    assert.equal(result.status, 401, path);
+  }
+  assert.equal(parses, 0); assert.equal(writes, 0);
+  assert.equal((await request(app, '/api/status', { headers: second })).status, 200);
+  const fresh = await login(app);
+  assert.equal((await request(app, '/api/status', { headers: fresh })).status, 200);
+  app.close();
+});
+test('restart rejects old sessions with unchanged secrets, and new login still works', async () => {
+  const firstApp = createApp(config(), {});
+  const old = await login(firstApp);
+  firstApp.close();
+  const restarted = createApp(config(), {});
+  assert.equal((await request(restarted, '/api/status', { headers: old })).status, 401);
+  const fresh = await login(restarted);
+  assert.equal((await request(restarted, '/api/status', { headers: fresh })).status, 200);
+  // Includes pre-fix cookies: a valid signature alone no longer grants access.
+  const payload = Buffer.from(JSON.stringify({ exp: Date.now() + 86400000, nonce: 'old-stateless-session' })).toString('base64url');
+  const signature = createHmac('sha256', config().secret).update(payload).digest('base64url');
+  assert.equal((await request(restarted, '/api/status', { headers: { cookie: 'schedule_session=' + payload + '.' + signature } })).status, 401);
+  restarted.close();
+});
+test('sessions expire after 90 days and tampered cookies are rejected', async t => {
+  const app = createApp(config(), {});
+  const headers = await login(app);
+  const bad = { ...headers, cookie: headers.cookie + 'x' };
+  assert.equal((await request(app, '/api/status', { headers: bad })).status, 401);
+  const expires = Date.now() + 91 * 86400000;
+  t.mock.method(Date, 'now', () => expires);
+  assert.equal((await request(app, '/api/status', { headers })).status, 401);
+  app.close();
+});
+const screenshot = () => Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]), Buffer.alloc(20)]);
+const deferred = () => { let resolve; const promise = new Promise(r => { resolve = r; }); return { promise, resolve }; };
+test('parse reservation covers a slow upload and provider work; rejected requests cannot release it', async () => {
+  const uploadStarted = deferred(), uploadRelease = deferred(), parseStarted = deferred(), parseRelease = deferred();
+  let calls = 0, uploading = true;
+  const app = createApp(config(), { parse: async () => { calls++; parseStarted.resolve(); if (!uploading) await parseRelease.promise; return { shifts: [], issues: [] }; } });
+  const headers = { ...await login(app), 'content-type': 'image/png' };
+  const stream = Readable.from((async function* () { uploadStarted.resolve(); await uploadRelease.promise; yield screenshot(); })());
+  const first = request(app, '/api/parse', { method: 'POST', headers, body: stream });
+  try {
+    await uploadStarted.promise;
+    assert.equal((await request(app, '/api/parse', { method: 'POST', headers, body: screenshot() })).status, 429);
+    uploading = false;
+    uploadRelease.resolve();
+    await parseStarted.promise;
+    for (let n = 0; n < 2; n++) assert.equal((await request(app, '/api/parse', { method: 'POST', headers, body: screenshot() })).status, 429);
+    assert.equal(calls, 1);
+  } finally { uploadRelease.resolve(); parseRelease.resolve(); await first; app.close(); }
+});
+test('parse reservation releases on success and validation, upload, provider, or quota failure', async () => {
+  let calls = 0, failProvider = false;
+  const app = createApp({ ...config(), maxParses: 3 }, { parse: async () => { calls++; if (failProvider) throw new Error('fixture provider failure'); return { shifts: [], issues: [] }; } });
+  const headers = { ...await login(app), 'content-type': 'image/png' };
+  const parse = (body = screenshot(), path = '/api/parse') => request(app, path, { method: 'POST', headers, body });
+  assert.equal((await parse(Buffer.alloc(20))).status, 400);
+  assert.equal((await parse(screenshot(), '/api/parse?year=2010')).status, 400);
+  assert.equal((await parse(Buffer.alloc(10 * 1024 * 1024 + 1))).status, 413);
+  const broken = Readable.from((async function* () { yield screenshot(); throw new Error('fixture upload failure'); })());
+  assert.equal((await parse(broken)).status, 500);
+  assert.equal(calls, 0);
+  assert.equal((await parse()).status, 200);
+  failProvider = true;
+  assert.equal((await parse()).status, 500);
+  failProvider = false;
+  assert.equal((await parse()).status, 200);
+  assert.equal(calls, 3);
+  for (let n = 0; n < 2; n++) {
+    const limited = await parse();
+    assert.equal(limited.status, 429);
+    assert.match(limited.body.error, /Daily/);
+  }
+  assert.equal(calls, 3);
+  app.close();
+});
+

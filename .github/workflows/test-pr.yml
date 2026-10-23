@@ -1,0 +1,25 @@
+name: Test pull request
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Build image and run offline tests on Linux
+        run: |
+          docker build --tag reachel-schedule-review .
+          docker run --rm --network none --read-only --cap-drop ALL \
+            --security-opt no-new-privileges --tmpfs /tmp:size=16m \
+            --volume "$PWD:/src:ro" --workdir /src \
+            --entrypoint node reachel-schedule-review --test
