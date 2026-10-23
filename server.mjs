@@ -27,6 +27,9 @@ export function createApp(config, suppliedServices) {
   const sign = x => createHmac('sha256', config.secret).update(x).digest('base64url');
   const safeEqual = (a, b) => { const aa = Buffer.from(a), bb = Buffer.from(b); return aa.length === bb.length && timingSafeEqual(aa, bb); };
   const attempts = new Map();
+  // Keep an allowlist so clearing a cookie also revokes it server-side.
+  // A restart deliberately requires fresh login, including for older cookies.
+  const sessions = new Map();
   let importQueue = Promise.resolve(), parseBusy = false, usage = { day: '', count: 0 };
   const staticFiles = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'], '/docker-icon.png': ['docker-icon.png', 'image/png'] };
   const publicDir = new URL('./public/', import.meta.url);
@@ -35,7 +38,12 @@ export function createApp(config, suppliedServices) {
     if (!cookie) return null;
     const [payload, signature, extra] = cookie.split('.');
     if (!payload || !signature || extra || !safeEqual(signature, sign(payload))) return null;
-    try { const obj = JSON.parse(Buffer.from(payload, 'base64url')); return obj.exp > Date.now() && typeof obj.nonce === 'string' ? obj : null; } catch { return null; }
+    try {
+      const obj = JSON.parse(Buffer.from(payload, 'base64url'));
+      if (typeof obj.nonce !== 'string' || !Number.isFinite(obj.exp)) return null;
+      if (obj.exp <= Date.now()) { sessions.delete(obj.nonce); return null; }
+      return sessions.get(obj.nonce) === obj.exp ? obj : null;
+    } catch { return null; }
   }
   function cookie(value, maxAge) { return `schedule_session=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${config.publicURL.startsWith('https:') ? '; Secure' : ''}`; }
   async function body(req, max = 65536) {
@@ -77,7 +85,10 @@ export function createApp(config, suppliedServices) {
         const actual = scryptSync(input.password, passwordSalt, 32);
         if (!timingSafeEqual(actual, passwordHash)) { attempt.count++; attempts.set(ip, attempt); throw new AppError('Password not accepted.', 401); }
         attempts.delete(ip);
-        const payload = Buffer.from(JSON.stringify({ exp: now + 90 * 86400000, nonce: randomBytes(24).toString('base64url') })).toString('base64url');
+        for (const [nonce, exp] of sessions) if (exp <= now) sessions.delete(nonce);
+        const auth = { exp: now + 90 * 86400000, nonce: randomBytes(24).toString('base64url') };
+        sessions.set(auth.nonce, auth.exp);
+        const payload = Buffer.from(JSON.stringify(auth)).toString('base64url');
         res.setHeader('Set-Cookie', cookie(payload + '.' + sign(payload), 90 * 86400));
         return send(res, 200, { ok: true });
       }
@@ -86,7 +97,11 @@ export function createApp(config, suppliedServices) {
       const csrf = sign('csrf:' + auth.nonce);
       if (req.method === 'POST' && !safeEqual(req.headers['x-csrf-token'] || '', csrf)) throw new AppError('Refresh this page and try again.', 403);
       if (req.method === 'GET' && url.pathname === '/api/status') return send(res, 200, { csrf, calendar: 'Reachel Test', calendarId: CALENDAR_ID, timezone: TIMEZONE, title: config.title, model: config.model, openaiConfigured: Boolean(config.openaiKey), calendarConfigured: Boolean(config.googleFile), demo: config.demo, maxParsesPerDay: config.maxParses });
-      if (req.method === 'POST' && url.pathname === '/api/logout') { res.setHeader('Set-Cookie', cookie('', 0)); return send(res, 200, { ok: true }); }
+      if (req.method === 'POST' && url.pathname === '/api/logout') {
+        sessions.delete(auth.nonce);
+        res.setHeader('Set-Cookie', cookie('', 0));
+        return send(res, 200, { ok: true });
+      }
       if (req.method === 'POST' && url.pathname === '/api/demo') {
         if (!config.demo) throw new AppError('Demo mode is disabled.', 404);
         return send(res, 200, { period: 'DEMO — synthetic dates, not your screenshot', shifts: [{ date: '2026-10-22', evidence: 'Synthetic example only.' }, { date: '2026-10-23', evidence: 'Synthetic example only.' }], issues: ['DEMO ONLY: no screenshot was read and calendar writes are disabled.'], usage: null });
@@ -95,17 +110,19 @@ export function createApp(config, suppliedServices) {
         if (config.demo) throw new AppError('Turn off DEMO_MODE to read a real screenshot.', 409);
         if (!config.openaiKey) throw new AppError('Add OPENAI_API_KEY on the server first.', 503);
         if (parseBusy) throw new AppError('A screenshot is already being read. Wait for it to finish.', 429);
-        const mime = String(req.headers['content-type'] || '').split(';')[0];
-        const bytes = await body(req, 10 * 1024 * 1024);
-        checkImage(bytes, mime);
-        const year = url.searchParams.has('year') ? Number(url.searchParams.get('year')) : undefined;
-        if (year !== undefined && (!Number.isInteger(year) || year < 2020 || year > 2099)) throw new AppError('Invalid year.');
-        const day = new Date().toISOString().slice(0, 10);
-        if (usage.day !== day) usage = { day, count: 0 };
-        if (usage.count >= config.maxParses) throw new AppError('Daily screenshot-reading limit reached. Try tomorrow.', 429);
-        usage.count++; parseBusy = true;
-        try { return send(res, 200, await services.parse(bytes, mime, year)); }
-        finally { parseBusy = false; }
+        parseBusy = true;
+        try {
+          const mime = String(req.headers['content-type'] || '').split(';')[0];
+          const bytes = await body(req, 10 * 1024 * 1024);
+          checkImage(bytes, mime);
+          const year = url.searchParams.has('year') ? Number(url.searchParams.get('year')) : undefined;
+          if (year !== undefined && (!Number.isInteger(year) || year < 2020 || year > 2099)) throw new AppError('Invalid year.');
+          const day = new Date().toISOString().slice(0, 10);
+          if (usage.day !== day) usage = { day, count: 0 };
+          if (usage.count >= config.maxParses) throw new AppError('Daily screenshot-reading limit reached. Try tomorrow.', 429);
+          usage.count++;
+          return send(res, 200, await services.parse(bytes, mime, year));
+        } finally { parseBusy = false; }
       }
       if (req.method === 'POST' && ['/api/check', '/api/import'].includes(url.pathname)) {
         if (config.demo) throw new AppError('Calendar access is disabled in demo mode.', 409);
@@ -147,3 +164,4 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   }
   server.listen(config.port, '0.0.0.0', () => console.log(`Reachel Schedule listening on port ${server.address().port}. Demo: ${config.demo}.`));
 }
+

@@ -154,7 +154,8 @@ Edit `.env` locally. For phone access through your existing Nginx Proxy Manager:
 - Set `BIND_ADDRESS` to the Unraid host's actual LAN IP, so NPM can reach it.
   The default `127.0.0.1` binding is intentionally local-only.
 - Set `OPENAI_API_KEY` and leave `DEMO_MODE=0`.
-- Set an app password you will enter once on her phone. Preserve `APP_SECRET`.
+- Set an app password for her phone. Preserve `APP_SECRET`; sign in again after
+  restarting or updating the app.
 - In NPM, forward the chosen HTTPS hostname to the Unraid LAN IP, port `3080`,
   HTTP upstream. Use your normal valid HTTPS certificate. This package does
   not change DNS, proxy, firewall, or port-forward settings.
@@ -221,7 +222,7 @@ that must be resolved with the calendar/account owner, not bypassed.
 | `OPENAI_MODEL` | Vision + Structured Outputs model; default `gpt-6.1-sol` |
 | `PUBLIC_URL` | Exact browser origin; HTTPS outside localhost/private LAN IPs |
 | `APP_PASSWORD` | At least 12 characters; shared app login |
-| `APP_SECRET` | At least 32 characters; preserves signed sessions |
+| `APP_SECRET` | At least 32 characters; signs session cookies |
 | `GOOGLE_APPLICATION_CREDENTIALS` | Local/container path to service-account JSON |
 | `SHIFT_TITLE` | Default `Reachel` |
 | `MAX_PARSES_PER_DAY` | Default 20, in memory per UTC day; restart resets it |
@@ -229,9 +230,10 @@ that must be resolved with the calendar/account owner, not bypassed.
 | `BIND_ADDRESS` | Compose host binding; default loopback |
 | `PORT` | Node listen port; leave 3080 with the supplied Compose mapping |
 
-Sessions last up to 90 days and use HttpOnly/SameSite cookies, plus Secure
-over HTTPS. Changing `APP_SECRET` invalidates all sessions. Changing only the
-password does not revoke sessions already issued. Failed logins are rate
+Sessions last up to 90 days or until logout or an app restart, and use
+HttpOnly/SameSite cookies, plus Secure over HTTPS. Logout revokes that session
+server-side; every restart or update requires fresh login on all phones.
+Requests already accepted before logout may finish. Failed logins are rate
 limited by direct peer IP; behind NPM, that shared proxy IP shares the limit.
 Request origins and CSRF tokens are checked on writes. No screenshot bytes
 are persisted, but OpenAI processes the image under your API account's data
@@ -273,7 +275,8 @@ app itself does not enforce Wi-Fi membership. HTTP is unencrypted even on a
 private LAN, so use it only on a trusted network; HTTPS is better if available.
 
 Keep the app password. Any device that can reach the app still needs it to use
-paid parsing or calendar operations. The login lasts up to 90 days. Clearing
+paid parsing or calendar operations. The login lasts up to 90 days or until
+logout or an app restart. Clearing
 APP_PASSWORD prevents startup; passwordless access is not implemented.
 
 For Unraid, put the downloaded Google key at
@@ -305,3 +308,4 @@ page; configuration presence remains available via authenticated /api/status.
 Review and conflict notices remain visible. No automatic calendar deletions
 were added. To re-test missing dates, remove only the intended events yourself,
 then preview and check that those dates are new before confirming an import.
+

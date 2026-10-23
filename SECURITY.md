@@ -18,14 +18,19 @@ It is not a multi-user or multi-tenant service.
 
 ## Sessions
 
-Sessions last up to 90 days. Cookies are signed, HttpOnly and SameSite=Lax,
+Sessions last up to 90 days or until logout or an app restart. The server keeps
+active sessions in memory; logout revokes that session, including copied cookies,
+without signing out other phones. Restarting or updating the app clears all
+sessions. Cookies from versions before this fix require a fresh login too.
+Requests already accepted before logout are not cancelled by signing out.
+Cookies are signed, HttpOnly and SameSite=Lax,
 and Secure when PUBLIC_URL uses HTTPS. POST requests require the configured
 origin; authenticated changes also require a session-specific CSRF token.
 Login attempts are limited to ten failures per direct peer per 15 minutes.
 These limits are in memory and reset on restart.
 
-Changing APP_SECRET and restarting invalidates all existing sessions.
-Changing APP_PASSWORD alone does not invalidate existing sessions.
+Any restart invalidates all existing sessions, including after changing
+APP_SECRET or APP_PASSWORD. No session state is written to disk.
 Server administrators with Docker/root access can read stored credentials.
 Masking a field in Docker Edit does not encrypt it.
 
@@ -65,3 +70,4 @@ resets it. AI may misread dots or grid positions; review remains mandatory.
 Report a reproducible description without API keys, JSON credentials, screenshots
 of private schedules, passwords, or environment dumps. Do not post secrets in
 GitHub issues. There is no separate monitored security contact for this project.
+

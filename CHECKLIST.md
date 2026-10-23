@@ -39,7 +39,8 @@ provider fixtures and do not contact OpenAI or Google.
    and another confirmed import should skip them. Check the personal calendar
    remains unchanged.
 9. Restart the container and check login, credential-file readability, and
-   existing-event detection again.
+   existing-event detection again. Sign-in must be required after every restart.
+   Sign out and confirm protected access is denied until signing in again.
 10. Add the shortcut to her phone's home screen. From cellular with Wi-Fi off
     and VPN off, confirm the private LAN URL cannot be reached. This checks
     that route only; also inspect port forwards/tunnels separately if needed.
@@ -50,3 +51,4 @@ No automatic deletion or correction of previously imported events; no native
 phone Share target; no offline use; no per-user accounts; no permanent usage
 database; no provider-backed visual test fixtures. Theme CSS has reduced-motion
 support and no external fonts, analytics, or image services.
+
