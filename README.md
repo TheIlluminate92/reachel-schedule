@@ -1,5 +1,20 @@
 # Reachel Schedule - v0.3.2
 
+<!-- historian-overview:start -->
+## Project overview
+
+| Field | Project |
+|---|---|
+| Purpose | Screenshot-to-reviewed-calendar schedule application. |
+| Status | Implemented application; current deployment and acceptance limits are recorded below. |
+| Owner | Repository: TheIlluminate92. Worker: Unassigned; project worker not recorded. |
+| Continue here | [Current work / guidance](CHECKLIST.md) · [Checks / context](UPGRADING.md) |
+| Related projects | Independent scope; no related repository is designated here. |
+
+Documentation reviewed October 27, 2026. Existing evidence dates below still apply;
+this overview is not a new release, deployment or live-system verification.
+<!-- historian-overview:end -->
+
 A small, self-hosted phone page for sending an HCA Timpani screenshot to
 OpenAI, reviewing the extracted work nights, and adding missing shifts to
 **Reachel Test**. It has no package dependencies and runs on Node.js 24.
