@@ -31,17 +31,32 @@ submissions, uncertain writes, authentication/CSRF, image byte forwarding,
 structured response handling, Google JWT signing, and paginated calendar reads.
 Provider responses in these tests are fixtures.
 
-**Live status:** installed on Unraid; the user successfully parsed a real
-Timpani screenshot and reviewed the returned dates. A Google JSON key has been
-downloaded. Live service-account reads and writes still need verification.
-The GitHub-built v0.3 image was deployed through Unraid's native updater;
-health and all six public assets were verified live. The v0.3.1 update simplifies
-the icon to a witch hat, crescent moon and a small heart. v0.3.2 adds explicit
-shutdown handling and a timed Docker stop check. The latest image still needs
-an Unraid update and phone visual check. The Docker page has retained its
-question-mark fallback even while the PNG endpoint responds correctly; see
-[UPGRADING.md](UPGRADING.md) for the targeted cache refresh. The user reports
-the app's functions work; the latest live checks here did not create events.
+**Current deployment — November 3, 2026:** R730 Operations completed the
+owner-approved LAN cutover at **22:10:48 CST** (November 4, 04:10:48 UTC).
+Open **http://192.168.2.2:3081**. The saved template and active container publish
+only **192.168.2.2:3081 → 3080/tcp**; internal `PORT=3080` is unchanged and
+`PUBLIC_URL`, WebUI and icon URL match the new origin. The same running image
+was retained without a pull. Private configuration and credentials were
+preserved. This was a network configuration change, not a new app release.
+
+Host health/page/icon checks returned 200; unauthenticated status returned 401.
+Wrong-origin login and cross-site requests were rejected. Windows-client
+health/page/status checks at **22:11:00 CST** also returned 200/200/401.
+Successful password login, an issued cookie, authenticated CSRF flow, phone
+acceptance and screenshot/provider/calendar behavior were **not tested** in this
+cutover. Sign in again: recreation cleared prior sessions. HTTP is unencrypted;
+the intended phone subnet and home-only access remain unverified. No firewall,
+NAT, DNS, NPM or public-access change was made. See
+[CHECKLIST.md](CHECKLIST.md) for acceptance limits and
+[UPGRADING.md](UPGRADING.md) for old-URL behavior and scoped rollback.
+
+**Earlier acceptance history — October 2026:** a real Timpani screenshot was
+parsed and reviewed, and the user reported the app's functions worked. The
+GitHub-built v0.3 deployment's health and six public assets were verified.
+v0.3.1 simplified the icon; v0.3.2 added explicit shutdown handling and a timed
+Docker stop check. These earlier observations do not establish a new successful
+calendar import, phone acceptance, Docker-page icon refresh or deployed image
+revision for the November 3 cutover.
 
 This version uses a home-screen shortcut and file picker. Native Android/iOS
 **Share → Send Schedule** is a later step after the phone platform is known.
@@ -283,7 +298,8 @@ Google permissions. Keep the actual screenshot as the first acceptance test.
 
 ## Home Wi-Fi deployment
 
-The intended deployment is private LAN access at the Unraid host's port 3080.
+The applied November 3 deployment is **http://192.168.2.2:3081**, bound to that
+IPv4 host address and mapped to the app's internal port 3080.
 Do not add public DNS, a reverse proxy, tunnel, or router port forward for this
 app. LAN/VPN reachability depends on your network firewall and VLAN rules; the
 app itself does not enforce Wi-Fi membership. HTTP is unencrypted even on a
