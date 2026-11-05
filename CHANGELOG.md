@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-05 — Documentation pilot
+
+- Added `docs/` tutorial, how-to, reference, architecture, deployment, recovery and history with entry navigation. Reused source and dated Operations evidence; no production/provider/calendar tests or runtime changes.
+- Preserved the existing November 3 LAN cutover edits, source/image distinctions and acceptance gaps. Changes stay in draft PR #4; main pushes publish images.
+
 ## Deployment history
 
 ### 2026-11-03 — approved R730 LAN cutover applied

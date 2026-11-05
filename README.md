@@ -1,5 +1,7 @@
 # Reachel Schedule - v0.3.2
 
+Start with the [newcomer and operator guides](docs/README.md) for learning, daily use, configuration, architecture, release and recovery. Existing evidence and historical detail below remain intact.
+
 <!-- historian-overview:start -->
 ## Project overview
 
@@ -109,6 +111,11 @@ password and signing secret. Set `OPENAI_API_KEY`, and keep
 npm start
 ```
 
+Direct Node startup binds `0.0.0.0` (all IPv4 interfaces). A localhost
+`PUBLIC_URL` does not isolate that listener; use only the separately approved
+development/network context. Compose host publishing is a different boundary;
+see [the configuration reference](docs/reference.md).
+
 Open **http://localhost:3080** in that computer's browser. Sign in using
 `APP_PASSWORD` from `.env`, select the screenshot, and click **Read my schedule**.
 Compare every extracted date to the blue dots. Green dots must not appear.
@@ -165,7 +172,12 @@ service-account JSON at `/mnt/cache/appdata/reachel-schedule/config/secrets/goog
 `/config/secrets/google.json`. The alternate Dockerfile/Compose instructions
 below use UID 1000 instead and are optional.
 
-### Alternate Dockerfile / Compose installation
+### Alternate Dockerfile / Compose installation — historical recipe
+
+This retained recipe describes a separate initial local build/proxy setup, not
+the installed 3081 LAN template or permission to change today's deployment. For
+current operation use [the deployment guide](docs/deployment.md); any new
+installation requires its own approved settings and access plan.
 
 Suggested install directory: `/mnt/user/appdata/reachel-schedule`.
 Extract the whole package there. These commands run from that directory and
@@ -206,7 +218,8 @@ docker build -t reachel-schedule:0.2 .
 ```
 #####
 
-Use repository `reachel-schedule:0.1`, container port `3080`, and the same
+For that historical local build, use the matching repository tag
+`reachel-schedule:0.2`, container port `3080`, and the same
 environment-variable names from `.env.example`. Set the host port/IP to match
 your proxy route. Mount the service-account JSON read-only once Google setup
 is ready. The image runs as UID/GID `1000:1000`; credential-file permissions
@@ -326,17 +339,23 @@ shortcut may open in a browser rather than install as a full PWA.
 See [UPGRADING.md](UPGRADING.md) for an existing Unraid installation and
 [CHECKLIST.md](CHECKLIST.md) for the live checks still needed.
 See [SECURITY.md](SECURITY.md) for credential handling and access limitations.
-The v0.2 theme changes the page, icon, and manifest only; calendar rules,
+The historical v0.2 theme changed the page, icon, and manifest only; calendar rules,
 authentication requirements, and the destination remain the same.
 
-## v0.3 appearance and everyday use
+## Current source artwork and everyday use
 
-The emblem blends a stylized anatomical heart, stethoscope, ECG trace, steel
-spikes, crescent moon, and witch hat. It is decorative, not a clinical diagram.
+The selected source uses a simple purple witch hat, crescent moon and small heart
+in `public/icon.svg` and `public/docker-icon.png`, with a dark purple page theme.
+`public/index.html` references that SVG for the page emblem/favicon; the PNG is
+the Docker icon. This describes source assets, not a fresh phone-rendering or
+installed-image parity check. The anatomical-heart/stethoscope/ECG/steel-spike
+emblem described in an earlier v0.3 iteration is historical and is not the
+selected source artwork.
 The phone page calls the destination My night shifts; the server still uses
 only Reachel Test. Connection/debug information is omitted from the everyday
 page; configuration presence remains available via authenticated /api/status.
 Review and conflict notices remain visible. No automatic calendar deletions
-were added. To re-test missing dates, remove only the intended events yourself,
-then preview and check that those dates are new before confirming an import.
+were added. Do not delete real events merely to test the app or its documentation.
+For uncertain imports, inspect the existing calendar before retrying; any future
+functional test needs an explicitly reviewed scope.
 
