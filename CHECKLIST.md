@@ -3,7 +3,7 @@
 These are manual checks, not claims of completed validation. Offline tests use
 provider fixtures and do not contact OpenAI or Google.
 
-## Recorded status
+## Earlier recorded status — October 2026
 
 - Original version installed on Unraid and started successfully.
 - Real screenshot reached OpenAI and produced a review list.
@@ -17,6 +17,37 @@ provider fixtures and do not contact OpenAI or Google.
 - v0.3.2 adds explicit shutdown handling and a clearer scheduling tagline. Its
   container stop timing is checked in Linux CI; Unraid update timing remains
   a separate live check.
+
+## Applied LAN cutover — November 3, 2026
+
+Evidence supplied by R730 Operations: completed **22:10:48 CST**
+(2026-11-04T04:10:48Z); Windows-client checks **22:11:00 CST**. These are the
+original observation times, not a subsequent live audit.
+
+- Current URL: **http://192.168.2.2:3081**; exact publication
+  **192.168.2.2:3081 → 3080/tcp**, without active wildcard IPv4/IPv6 publication.
+- `PORT=3080` unchanged; `PUBLIC_URL`, template WebUI and icon URL match 3081.
+  Same image retained without pulling; private configuration and credentials
+  unchanged. Only Reachel-Schedule was recreated.
+- Host Docker state/health: running/healthy. GET health/page/icon: 200 each.
+  Unauthenticated status: 401. Login POST with the former HTTPS origin: 403
+  before password processing. New-origin logout without a session: 401;
+  cross-site POST: 403.
+- Independent Windows-client health/page/status: 200/200/401.
+- Password/session/CSRF checks remain implemented. Cookie HttpOnly/SameSite=Lax
+  and absence of Secure over HTTP were verified in code, not by acquiring a live
+  session. Fresh login is required after recreation.
+- Not tested: successful password login, an issued cookie, authenticated CSRF,
+  phone layout/login, screenshot parsing, provider access or calendar operations.
+  No credentials or provider/calendar calls were used for acceptance.
+- Intended phone/client subnet and effective home-only isolation remain unknown.
+  A denied Windows route-metadata read was not retried or bypassed. Server LAN
+  membership and a successful desktop request do not establish phone reachability.
+- No firewall/NAT/DNS/NPM/public-access changes. The old public URL was not
+  probed; no redirect or proxy deletion is implied by the origin change.
+- Recovery uses the retained stopped original container and private Operations
+  template/image/config records. Raw backups stay off GitHub; see
+  [UPGRADING.md](UPGRADING.md#november-3-lan-cutover-rollback).
 
 ## Check in this order
 

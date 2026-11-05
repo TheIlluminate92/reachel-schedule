@@ -1,5 +1,57 @@
 # Updates through GitHub and Unraid
 
+## Current LAN deployment — November 3, 2026
+
+R730 Operations applied the owner-approved cutover at **22:10:48 CST**
+(2026-11-04T04:10:48Z). Current browser origin: **http://192.168.2.2:3081**.
+The persistent Unraid template and active replacement publish only
+**192.168.2.2:3081 → container 3080/tcp**; internal `PORT=3080` remains unchanged.
+`PUBLIC_URL`, WebUI and icon URL match the new address. The existing image,
+private configuration, credentials, mounts and resource/security settings were
+preserved; no image was pulled. Only Reachel-Schedule was recreated. The brief
+outage was approximately **22:09:31–22:10:48 CST**.
+
+Health/page/icon and rejection checks passed from the host; Windows-client
+health/page/unauthenticated-status checks followed at **22:11:00 CST**.
+Successful login, live cookie/session/CSRF flow, phone acceptance and
+screenshot/provider/calendar behavior remain untested. Use [CHECKLIST.md](CHECKLIST.md)
+for the complete scope and limits. These dated results are not a new audit.
+
+HTTP does not encrypt login/session traffic. Cookies keep HttpOnly and
+SameSite=Lax but omit Secure; every recreation invalidates in-memory sessions,
+so sign in again. Preserve password and session-secret values. The intended
+phone subnet and network isolation are unknown. No firewall, NAT, DNS, NPM or
+public-access change accompanied this cutover.
+
+### Old URL and shortcuts
+
+Replace old bookmarks/home-screen shortcuts with the new URL. Changing
+`PUBLIC_URL` creates no redirect and removes no proxy. The former configured
+origin was `https://schedule.wazserver.org:18443`; 18443 is NPM's shared HTTPS
+publication, not the app's internal port. A proxy still targeting host port 3080
+loses its active target after this mapping change. If an old route otherwise
+reaches the app, public GET page/assets/health can load, but POSTs using the old
+origin fail 403. The old URL's actual end-to-end behavior was not probed; do not
+claim that its DNS, certificate or proxy disappeared.
+
+### November 3 LAN cutover rollback
+
+R730 Operations owns the retained stopped original container and private
+root-only recovery records. Use that dated private record to identify the exact
+original container, template, immutable image and consistent configuration backup.
+Do not upload raw inspect, templates, native commands, backups or credentials.
+
+For a separately approved Reachel-only rollback: stop the replacement and retain
+it under a different name; restore the saved original template with its original
+permissions; return the retained stopped original to the normal container name
+and start it. This restores its prior wildcard host-3080 binding, previous
+origin and same original image/configuration. It also clears sessions and
+requires fresh login. Preserve `/config` and credentials; do not restore config
+data merely because a restart is needed. Do not substitute a fresh `:latest`
+pull or the original Node-installer rollback for this network-only recovery.
+Restoring prior settings cannot repair a pre-existing proxy/certificate gap.
+
+
 ## Session security fix
 
 After installing the logout/session fix, sign in again on each phone. Sessions
@@ -18,7 +70,11 @@ ghcr.io/theilluminate92/reachel-schedule:latest
 Each build also publishes `sha-<full commit>` for rollback. A failed build never
 moves latest. The package is private by default; repository visibility is unchanged.
 
-## One-time migration
+## Original Node-image migration — historical procedure
+
+The host-3080 examples below describe the original installation, not the current
+November 3 LAN binding. Keep the current 3081 template/origin when updating the
+existing migrated container; do not rerun this migration or installer.
 
 The original container uses node:24-alpine and mounts local files at /app.
 Updating Node cannot update the app, and that mount hides the new image's files.
@@ -98,7 +154,7 @@ $docroot = '/usr/local/emhttp';
 require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
 $name = 'Reachel-Schedule';
 $image = 'ghcr.io/theilluminate92/reachel-schedule:latest';
-$url = 'http://192.168.2.2:3080/docker-icon.png';
+$url = 'http://192.168.2.2:3081/docker-icon.png';
 $templates = new DockerTemplates();
 if ($templates->getTemplateValue($image, 'Icon', 'all', $name) !== $url) {
     fwrite(STDERR, "Set this container's template Icon URL to $url first.\n");

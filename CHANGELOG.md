@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-11-05 — Documentation pilot
+
+- Added `docs/` tutorial, how-to, reference, architecture, deployment, recovery and history with entry navigation. Reused source and dated Operations evidence; no production/provider/calendar tests or runtime changes.
+- Preserved the existing November 3 LAN cutover edits, source/image distinctions and acceptance gaps. Changes stay in draft PR #4; main pushes publish images.
+
+## Deployment history
+
+### 2026-11-03 — approved R730 LAN cutover applied
+
+- Completed by R730 Operations at **22:10:48 CST** (2026-11-04T04:10:48Z);
+  Windows-client acceptance at **22:11:00 CST**.
+- Browser origin and saved template changed to `http://192.168.2.2:3081`,
+  with exact IPv4 publication `192.168.2.2:3081 → 3080/tcp`. Internal port,
+  existing image, private configuration and credentials retained; no image pull.
+- Recreated only the scheduler. No firewall/NAT/DNS/NPM/public-access or
+  provider/calendar changes. Restarted sessions require fresh login.
+- Health/page/icon and unauthenticated/origin rejection checks passed within the
+  [recorded acceptance scope](CHECKLIST.md#applied-lan-cutover--november-3-2026).
+  Successful live login/session/CSRF, phone access, intended client subnet,
+  screenshot/provider/calendar behavior and old-public-URL behavior remain
+  unverified. This documentation update repeats those original observation
+  dates; it performs no new runtime checks.
+- Retained original container and private template/image/config recovery records
+  remain Operations-owned. See [scoped rollback](UPGRADING.md#november-3-lan-cutover-rollback);
+  raw private recovery exports are not included in this repository.
+
+
 ## Unreleased
 
 - Revoke signed-out sessions on the server so copied cookies cannot be replayed.

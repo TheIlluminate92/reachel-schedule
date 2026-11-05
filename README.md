@@ -1,5 +1,7 @@
 # Reachel Schedule - v0.3.2
 
+Start with the [newcomer and operator guides](docs/README.md) for learning, daily use, configuration, architecture, release and recovery. Existing evidence and historical detail below remain intact.
+
 <!-- historian-overview:start -->
 ## Project overview
 
@@ -31,17 +33,32 @@ submissions, uncertain writes, authentication/CSRF, image byte forwarding,
 structured response handling, Google JWT signing, and paginated calendar reads.
 Provider responses in these tests are fixtures.
 
-**Live status:** installed on Unraid; the user successfully parsed a real
-Timpani screenshot and reviewed the returned dates. A Google JSON key has been
-downloaded. Live service-account reads and writes still need verification.
-The GitHub-built v0.3 image was deployed through Unraid's native updater;
-health and all six public assets were verified live. The v0.3.1 update simplifies
-the icon to a witch hat, crescent moon and a small heart. v0.3.2 adds explicit
-shutdown handling and a timed Docker stop check. The latest image still needs
-an Unraid update and phone visual check. The Docker page has retained its
-question-mark fallback even while the PNG endpoint responds correctly; see
-[UPGRADING.md](UPGRADING.md) for the targeted cache refresh. The user reports
-the app's functions work; the latest live checks here did not create events.
+**Current deployment — November 3, 2026:** R730 Operations completed the
+owner-approved LAN cutover at **22:10:48 CST** (November 4, 04:10:48 UTC).
+Open **http://192.168.2.2:3081**. The saved template and active container publish
+only **192.168.2.2:3081 → 3080/tcp**; internal `PORT=3080` is unchanged and
+`PUBLIC_URL`, WebUI and icon URL match the new origin. The same running image
+was retained without a pull. Private configuration and credentials were
+preserved. This was a network configuration change, not a new app release.
+
+Host health/page/icon checks returned 200; unauthenticated status returned 401.
+Wrong-origin login and cross-site requests were rejected. Windows-client
+health/page/status checks at **22:11:00 CST** also returned 200/200/401.
+Successful password login, an issued cookie, authenticated CSRF flow, phone
+acceptance and screenshot/provider/calendar behavior were **not tested** in this
+cutover. Sign in again: recreation cleared prior sessions. HTTP is unencrypted;
+the intended phone subnet and home-only access remain unverified. No firewall,
+NAT, DNS, NPM or public-access change was made. See
+[CHECKLIST.md](CHECKLIST.md) for acceptance limits and
+[UPGRADING.md](UPGRADING.md) for old-URL behavior and scoped rollback.
+
+**Earlier acceptance history — October 2026:** a real Timpani screenshot was
+parsed and reviewed, and the user reported the app's functions worked. The
+GitHub-built v0.3 deployment's health and six public assets were verified.
+v0.3.1 simplified the icon; v0.3.2 added explicit shutdown handling and a timed
+Docker stop check. These earlier observations do not establish a new successful
+calendar import, phone acceptance, Docker-page icon refresh or deployed image
+revision for the November 3 cutover.
 
 This version uses a home-screen shortcut and file picker. Native Android/iOS
 **Share → Send Schedule** is a later step after the phone platform is known.
@@ -93,6 +110,11 @@ password and signing secret. Set `OPENAI_API_KEY`, and keep
 ```text
 npm start
 ```
+
+Direct Node startup binds `0.0.0.0` (all IPv4 interfaces). A localhost
+`PUBLIC_URL` does not isolate that listener; use only the separately approved
+development/network context. Compose host publishing is a different boundary;
+see [the configuration reference](docs/reference.md).
 
 Open **http://localhost:3080** in that computer's browser. Sign in using
 `APP_PASSWORD` from `.env`, select the screenshot, and click **Read my schedule**.
@@ -150,7 +172,12 @@ service-account JSON at `/mnt/cache/appdata/reachel-schedule/config/secrets/goog
 `/config/secrets/google.json`. The alternate Dockerfile/Compose instructions
 below use UID 1000 instead and are optional.
 
-### Alternate Dockerfile / Compose installation
+### Alternate Dockerfile / Compose installation — historical recipe
+
+This retained recipe describes a separate initial local build/proxy setup, not
+the installed 3081 LAN template or permission to change today's deployment. For
+current operation use [the deployment guide](docs/deployment.md); any new
+installation requires its own approved settings and access plan.
 
 Suggested install directory: `/mnt/user/appdata/reachel-schedule`.
 Extract the whole package there. These commands run from that directory and
@@ -191,7 +218,8 @@ docker build -t reachel-schedule:0.2 .
 ```
 #####
 
-Use repository `reachel-schedule:0.1`, container port `3080`, and the same
+For that historical local build, use the matching repository tag
+`reachel-schedule:0.2`, container port `3080`, and the same
 environment-variable names from `.env.example`. Set the host port/IP to match
 your proxy route. Mount the service-account JSON read-only once Google setup
 is ready. The image runs as UID/GID `1000:1000`; credential-file permissions
@@ -283,7 +311,8 @@ Google permissions. Keep the actual screenshot as the first acceptance test.
 
 ## Home Wi-Fi deployment
 
-The intended deployment is private LAN access at the Unraid host's port 3080.
+The applied November 3 deployment is **http://192.168.2.2:3081**, bound to that
+IPv4 host address and mapped to the app's internal port 3080.
 Do not add public DNS, a reverse proxy, tunnel, or router port forward for this
 app. LAN/VPN reachability depends on your network firewall and VLAN rules; the
 app itself does not enforce Wi-Fi membership. HTTP is unencrypted even on a
@@ -310,17 +339,23 @@ shortcut may open in a browser rather than install as a full PWA.
 See [UPGRADING.md](UPGRADING.md) for an existing Unraid installation and
 [CHECKLIST.md](CHECKLIST.md) for the live checks still needed.
 See [SECURITY.md](SECURITY.md) for credential handling and access limitations.
-The v0.2 theme changes the page, icon, and manifest only; calendar rules,
+The historical v0.2 theme changed the page, icon, and manifest only; calendar rules,
 authentication requirements, and the destination remain the same.
 
-## v0.3 appearance and everyday use
+## Current source artwork and everyday use
 
-The emblem blends a stylized anatomical heart, stethoscope, ECG trace, steel
-spikes, crescent moon, and witch hat. It is decorative, not a clinical diagram.
+The selected source uses a simple purple witch hat, crescent moon and small heart
+in `public/icon.svg` and `public/docker-icon.png`, with a dark purple page theme.
+`public/index.html` references that SVG for the page emblem/favicon; the PNG is
+the Docker icon. This describes source assets, not a fresh phone-rendering or
+installed-image parity check. The anatomical-heart/stethoscope/ECG/steel-spike
+emblem described in an earlier v0.3 iteration is historical and is not the
+selected source artwork.
 The phone page calls the destination My night shifts; the server still uses
 only Reachel Test. Connection/debug information is omitted from the everyday
 page; configuration presence remains available via authenticated /api/status.
 Review and conflict notices remain visible. No automatic calendar deletions
-were added. To re-test missing dates, remove only the intended events yourself,
-then preview and check that those dates are new before confirming an import.
+were added. Do not delete real events merely to test the app or its documentation.
+For uncertain imports, inspect the existing calendar before retrying; any future
+functional test needs an explicitly reviewed scope.
 
