@@ -1,19 +1,41 @@
 # Reachel Schedule - v0.3.2
 
-<!-- historian-overview:start -->
-## Project overview
+<!-- reader-guide:start -->
+## Meet the project
 
-| Field | Project |
+A household web app that turns a Timpani screenshot into proposed night shifts. A person reviews the dates, checks calendar conflicts and explicitly confirms the missing shifts to add.
+
+### What it is built with
+
+JavaScript ES modules on Node.js 24+, built-in HTTP/crypto/filesystem APIs and plain HTML/CSS/browser JavaScript. OpenAI interprets the image; Google Calendar receives confirmed shifts. No npm framework or database.
+
+### Find your way around
+
+| Start here | What you will find |
 |---|---|
-| Purpose | Screenshot-to-reviewed-calendar schedule application. |
-| Status | Implemented application; current deployment and acceptance limits are recorded below. |
-| Owner | Repository: TheIlluminate92. Worker: Unassigned; project worker not recorded. |
-| Continue here | [Current work / guidance](CHECKLIST.md) · [Checks / context](UPGRADING.md) |
-| Related projects | Independent scope; no related repository is designated here. |
+| [server.mjs](server.mjs) | Routes, sessions, configuration and request limits. |
+| [core.mjs](core.mjs) | Dates, conflicts and duplicate-safe import decisions. |
+| [services.mjs](services.mjs) | OpenAI and Google Calendar adapters. |
+| [public/app.js](public/app.js) | Upload, review, confirmation and results interface. |
+| [SECURITY.md](SECURITY.md) | Authentication and private configuration boundaries. |
 
-Documentation reviewed October 27, 2026. Existing evidence dates below still apply;
-this overview is not a new release, deployment or live-system verification.
-<!-- historian-overview:end -->
+### When something goes wrong
+
+Start by reading the relevant source or guide below. These are investigation
+starting points, not instructions to change a live system.
+
+| Symptom or question | First place to look |
+|---|---|
+| Login or origin rejection | Compare the exact browser address with PUBLIC_URL; host port and internal listener differ. Do not disable the protection. |
+| Dates or conflicts look wrong | Start with review controls, core.mjs and synthetic test cases; check the intended result before retrying an uncertain calendar write. |
+| Update not visible | Compare the built image receipt with the installed image through the host owner; a source commit is not a deployment. |
+
+The repository owner maintains this project; a dedicated technical worker is not recorded.
+
+Reader guide reviewed November 12, 2026 against repository source and available
+owner records. Existing test, deployment and recovery evidence keeps its original
+date; this prose review did not run the application or test a restore.
+<!-- reader-guide:end -->
 
 A small, self-hosted phone page for sending an HCA Timpani screenshot to
 OpenAI, reviewing the extracted work nights, and adding missing shifts to
