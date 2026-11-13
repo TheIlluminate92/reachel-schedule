@@ -1,6 +1,7 @@
 FROM node:24-alpine
 ENV NODE_ENV=production PORT=3080
 WORKDIR /app
+COPY --chown=node:node LICENSE LICENSING.md ./
 COPY --chown=node:node package.json core.mjs services.mjs server.mjs ./
 COPY --chown=node:node public ./public
 USER node

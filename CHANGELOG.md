@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased — licensing maintenance (2026-11-13)
+
+The project now has an MIT license and matching package metadata. Future container builds copy LICENSE into /app. Node and Alpine keep their own licenses; this change does not rebuild or deploy an image. See [LICENSING.md](LICENSING.md). No runtime behavior or existing release asset changed.
+
 ## Unreleased
 
 - Revoke signed-out sessions on the server so copied cookies cannot be replayed.

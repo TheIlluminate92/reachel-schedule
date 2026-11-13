@@ -324,3 +324,8 @@ Review and conflict notices remain visible. No automatic calendar deletions
 were added. To re-test missing dates, remove only the intended events yourself,
 then preview and check that those dates are new before confirming an import.
 
+
+
+## License and redistribution
+
+[MIT License](LICENSE): reuse and modification are allowed with the notice retained. Provided as is, without warranty. See [licensing and packaging scope](LICENSING.md) for third-party terms and release limitations.
