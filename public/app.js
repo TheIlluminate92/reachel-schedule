@@ -84,7 +84,7 @@ function showParsed(result) {
   $('issues').hidden = !issues.length; $('review-panel').hidden = false; $('result-panel').hidden = true;
   $('review-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-$('parse').addEventListener('click', () => withBusy($('parse'), 'Reading blue dots…', async () => {
+$('parse').addEventListener('click', () => withBusy($('parse'), 'Reading work nights…', async () => {
   if (!selectedFile) return;
   const year = $('year').value.trim();
   if (year && (!/^20\d{2}$/.test(year) || +year < 2020)) throw new Error('Enter a year between 2020 and 2099.');

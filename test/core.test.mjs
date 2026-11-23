@@ -32,6 +32,44 @@ test('reupload skips legacy events and flags a different time instead of duplica
   const result = await importDates(['2026-10-22', '2026-10-23'], calendar);
   assert.deepEqual(result.map(x => x.status), ['existing', 'conflict']);
 });
+test('recognized shifts overlapping across midnight block import, with exact matches taking precedence', async () => {
+  const date = '2032-01-01';
+  const wanted = makeEvent(date, 'Synthetic');
+  const early = makeEvent('2031-12-31', 'Synthetic');
+  early.end = wanted.end;
+  const late = { ...wanted, start: { dateTime: '2032-01-02T09:00:00Z' }, end: { dateTime: '2032-01-02T15:00:00Z' } };
+  for (const overlap of [early, late]) {
+    const calendar = { list: async () => [overlap], insert: async () => assert.fail('must not insert an overlap') };
+    assert.deepEqual(await importDates([date], calendar, 'Synthetic'), [{ date, status: 'conflict' }]);
+    calendar.list = async () => [overlap, wanted];
+    assert.equal((await classifyDates([date], calendar, 'Synthetic'))[0].status, 'existing');
+  }
+});
+test('adjacent nights, cancelled or unrelated events, and invalid intervals do not block import', async () => {
+  const date = '2032-01-01';
+  const wanted = makeEvent(date, 'Synthetic');
+  const previous = makeEvent('2031-12-31', 'Synthetic');
+  previous.end = wanted.start;
+  const events = [
+    previous,
+    makeEvent('2032-01-02', 'Synthetic'),
+    { ...wanted, start: wanted.end, end: { dateTime: '2032-01-02T14:00:00Z' } },
+    { ...wanted, status: 'cancelled' },
+    { ...wanted, extendedProperties: {} },
+    { ...wanted, start: { dateTime: 'invalid' } },
+    { ...wanted, start: wanted.end, end: wanted.start }
+  ];
+  const result = await classifyDates([date], { list: async () => events }, 'Synthetic');
+  assert.equal(result[0].status, 'new');
+});
+test('a recognized shift with a same-night start still needs review when its end is missing or invalid', async () => {
+  const date = '2032-01-01';
+  const wanted = makeEvent(date, 'Synthetic');
+  for (const end of [undefined, { dateTime: 'invalid' }, wanted.start]) {
+    const calendar = { list: async () => [{ ...wanted, end }] };
+    assert.equal((await classifyDates([date], calendar, 'Synthetic'))[0].status, 'conflict');
+  }
+});
 test('a write that succeeds then times out is confirmed by stable ID; partial failures remain explicit', async () => {
   const stored = new Map();
   const calendar = {
@@ -45,24 +83,48 @@ test('a write that succeeds then times out is confirmed by stable ID; partial fa
   assert.notEqual(makeEvent('2026-10-22').id, makeEvent('2026-10-23').id);
   assert.ok(/^[0-9a-v]{5,1024}$/.test(makeEvent('2026-10-22').id));
 });
-test('image bytes are sent as a high-detail image, with strict blue-dot instructions and no storage', () => {
+test('image bytes are sent with high detail, narrow highlighted-white instructions and no storage', () => {
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a4nQAAAAASUVORK5CYII=', 'base64');
   const request = visionRequest(png, 'image/png', 'test-model', 2026);
   assert.equal(request.input[0].content[1].image_url, 'data:image/png;base64,' + png.toString('base64'));
   assert.equal(request.input[0].content[1].detail, 'high');
   assert.equal(request.store, false);
-  assert.match(request.instructions, /ONLY dates with BLUE/);
+  assert.match(request.instructions, /BLUE scheduled-work dot/);
   assert.match(request.instructions, /IGNORE GREEN/);
+  assert.match(request.instructions, /WHITE dot in a highlighted cell/);
+  assert.match(request.instructions, /same day and month/);
+  assert.match(request.instructions, /overnight shift STARTS/);
+  assert.deepEqual(request.text.format.schema.properties.shifts.items.properties.marker.enum, ['blue', 'highlighted_white']);
   assert.equal(request.text.format.strict, true);
   assert.throws(() => visionRequest(Buffer.from('not an image at all'), 'image/png', 'test'));
   assert.ok(CALENDAR_ID.endsWith('@group.calendar.google.com'));
+});
+test('only date-matched highlighted white dots enter the review list alongside ordinary blue dots', () => {
+  const response = data => ({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify(data) }] }] });
+  const result = readVisionResponse(response({
+    period: 'January–February 2032',
+    shifts: [
+      { date: '2032-01-03', marker: 'blue', scheduledWorkCardDate: null, evidence: 'Blue dot' },
+      { date: '2032-01-08', marker: 'blue', scheduledWorkCardDate: null, evidence: 'Blue and green dots' },
+      { date: '2032-01-09', marker: 'highlighted_white', scheduledWorkCardDate: '2032-02-09', evidence: 'Card is for a different month' },
+      { date: '2032-01-17', marker: 'highlighted_white', scheduledWorkCardDate: null, evidence: 'No matching assignment card' },
+      { date: '2032-01-31', marker: 'highlighted_white', scheduledWorkCardDate: '2032-01-31', evidence: 'Matching assigned overnight shift that ends in February' }
+    ],
+    issues: ['An unhighlighted white dot needs review.']
+  }));
+  assert.deepEqual(result.shifts.map(x => x.date), ['2032-01-03', '2032-01-08', '2032-01-31']);
+  assert.deepEqual(Object.keys(result.shifts[2]), ['date', 'evidence']);
+  assert.ok(result.issues.some(x => x.includes('2032-01-09')));
+  assert.ok(result.issues.some(x => x.includes('2032-01-17')));
+  assert.ok(result.issues.includes('An unhighlighted white dot needs review.'));
 });
 test('refusals and truncated results do not become apparently successful dates', () => {
   assert.throws(() => readVisionResponse({ status: 'incomplete', output: [] }));
   assert.throws(() => readVisionResponse({ status: 'completed', output: [{ content: [{ type: 'refusal' }] }] }));
   const response = data => ({ status: 'completed', output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(data) }] }] });
   assert.throws(() => readVisionResponse(response({ period: 'Feb', shifts: [{ date: '2026-02-30', evidence: 'blue' }], issues: [] })));
-  const result = readVisionResponse(response({ period: 'Oct 2026', shifts: [{ date: '2026-10-22', evidence: 'blue dot' }], issues: ['One dot is unclear.'] }));
+  assert.throws(() => readVisionResponse(response({ period: 'Jan 2032', shifts: [{ date: '2032-01-03', marker: 'green', scheduledWorkCardDate: null, evidence: 'Ignored marker' }], issues: [] })));
+  const result = readVisionResponse(response({ period: 'Oct 2026', shifts: [{ date: '2026-10-22', marker: 'blue', scheduledWorkCardDate: null, evidence: 'blue dot' }], issues: ['One dot is unclear.'] }));
   assert.deepEqual(result.shifts.map(x => x.date), ['2026-10-22']);
   assert.deepEqual(result.issues, ['One dot is unclear.']);
 });

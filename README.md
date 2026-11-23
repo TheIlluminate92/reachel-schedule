@@ -21,7 +21,7 @@ OpenAI, reviewing the extracted work nights, and adding missing shifts to
 
 ## Current status
 
-Implemented: image upload to the Responses API; blue-dot extraction prompt;
+Implemented: image upload to the Responses API; scheduled-work extraction;
 editable review; manual confirmation; existing-event checks; fixed Google
 Calendar destination; signed-in access; Docker configuration.
 
@@ -51,12 +51,16 @@ corrections need explicit review. Green-only dates never authorize deletion.
 ## Schedule rules
 
 - Blue dot: scheduled work night. Green dot: ignore. Both dots: count blue.
+- A white dot in a highlighted cell counts only if the same screenshot shows
+  an explicit assigned work card for the matching date. Unclear white dots
+  are flagged for review.
 - Date is the night the shift starts, not the following morning.
 - Start 6:30 PM; end 7:00 AM the following day; America/Chicago timezone.
 - New title defaults to **Reachel**, matching recent calendar entries. Change
   `SHIFT_TITLE` to `Reachel Night Shift` if desired.
 - Existing **Reachel** and **Reachel Night Shift** entries with identical times
-  are skipped. A different time on the same night is flagged, not overwritten.
+  are skipped. Differently timed recognized shifts on the same night or
+  overlapping from another night are flagged for review.
 - Destination is the known **Reachel Test** calendar ID in `core.mjs`. The
   browser cannot change it to a primary/personal calendar.
 - Always review dates against the original screenshot. AI can misread colors
@@ -96,7 +100,8 @@ npm start
 
 Open **http://localhost:3080** in that computer's browser. Sign in using
 `APP_PASSWORD` from `.env`, select the screenshot, and click **Read my schedule**.
-Compare every extracted date to the blue dots. Green dots must not appear.
+Compare every extracted date to the screenshot, including the assigned work
+card for any highlighted white-dot date. Green-only dates must stay out.
 Google setup is not needed to run this parsing test, and saving remains
 disabled until credentials are configured. After `.env` changes, restart the
 server.
