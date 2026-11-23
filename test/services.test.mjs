@@ -43,7 +43,7 @@ test('OpenAI adapter sends an image to Responses and returns parsed dates, not c
     const body = JSON.parse(options.body);
     assert.equal(body.model, 'fixture-model');
     assert.equal(body.input[0].content[1].image_url, 'data:image/png;base64,' + bytes.toString('base64'));
-    return { ok: true, json: async () => ({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify({ period: 'Oct 2026', shifts: [{ date: '2026-10-22', evidence: 'Blue dot' }], issues: [] }) }] }], usage: { input_tokens: 123, output_tokens: 45 } }) };
+    return { ok: true, json: async () => ({ status: 'completed', output: [{ content: [{ type: 'output_text', text: JSON.stringify({ period: 'Oct 2026', shifts: [{ date: '2026-10-22', evidence: 'Blue dot', marker: 'blue', scheduledWorkCardDate: null }], issues: [] }) }] }], usage: { input_tokens: 123, output_tokens: 45 } }) };
   });
   assert.equal((await service.parse(bytes, 'image/png')).shifts[0].date, '2026-10-22');
 });

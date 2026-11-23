@@ -26,8 +26,12 @@ provider fixtures and do not contact OpenAI or Google.
    green must still mean ignored. Check that text and inputs are readable.
 3. Confirm screenshot parsing works and the calendar check is available. In
    v0.3, connection configuration details are kept off the everyday phone page.
-4. Upload a real Timpani screenshot. Check month, year, every blue dot, and any
-   dates having both blue and green. Compare each extracted date to the image.
+4. For provider visual acceptance, use an approved synthetic calendar screenshot.
+   Check ordinary blue dots, blue-plus-green, and a highlighted white dot with a
+   matching assigned overnight card. Verify the shift start date at month-end.
+   A missing card or same day number in the wrong month should flag a review
+   issue and leave that date out. Green-only dots, legends and highlights alone
+   should produce no shifts.
 5. Exercise manual correction: add a missing date, edit a date, remove a date.
    Editing must clear the confirmation and previous existing-event status.
 6. Select Check for existing shifts. Verify known Reachel / Reachel Night Shift

@@ -6,6 +6,16 @@ The project now has an MIT license and matching package metadata. Future contain
 
 ## Unreleased
 
+### 2026-11-22 schedule corrections
+
+- Include a highlighted white-dot date only when a visible assigned work card
+  matches the date. Ambiguous white dots go to human review.
+- Flag overlapping recognized calendar shifts across midnight. Exact matches
+  still skip, and differently timed shifts starting on the same night still
+  require review.
+- The browser response shape, calendar target, event IDs and configuration
+  stay compatible. No data migration is required.
+
 - Revoke signed-out sessions on the server so copied cookies cannot be replayed.
   Active sessions are held in memory: restarting or updating requires fresh login
   on all phones, including cookies issued by older versions. No new storage needed.
