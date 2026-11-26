@@ -67,11 +67,24 @@ $('login-form').addEventListener('submit', async event => {
 });
 $('logout').addEventListener('click', async () => { try { await api('/api/logout', {}); location.reload(); } catch (err) { notice(err.message, true); } });
 $('screenshot').addEventListener('change', () => {
-  const file = $('screenshot').files[0]; if (!file) return;
-  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) { notice('Choose a PNG, JPEG, or WebP screenshot under 10 MB.', true); $('screenshot').value = ''; return; }
+  const file = $('screenshot').files[0];
   if (objectURL) URL.revokeObjectURL(objectURL);
+  selectedFile = objectURL = undefined;
+  $('preview-image').removeAttribute('src');
+  $('image-preview').hidden = true;
+  $('upload-label').textContent = 'Choose screenshot';
+  $('parse').disabled = true;
+  $('review-panel').hidden = true;
+  $('result-panel').hidden = true;
+  invalidateCheck();
+  if (!file) return;
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size < 12 || file.size > 10 * 1024 * 1024) {
+    $('screenshot').value = '';
+    notice('Choose a PNG, JPEG, or WebP screenshot under 10 MB.', true);
+    return;
+  }
   selectedFile = file; objectURL = URL.createObjectURL(file); $('preview-image').src = objectURL;
-  $('image-preview').hidden = false; $('upload-label').textContent = file.name; $('review-panel').hidden = true; $('result-panel').hidden = true;
+  $('image-preview').hidden = false; $('upload-label').textContent = file.name;
   $('parse').disabled = !state?.openaiConfigured || state.demo; notice('');
 });
 $('change-image').addEventListener('click', () => { if (!busy) $('screenshot').click(); });
@@ -109,7 +122,18 @@ $('save').addEventListener('click', () => withBusy($('save'), 'Adding shifts…'
   for (const result of results) {
     const row = document.createElement('div'); row.className = 'result-line'; const date = document.createElement('span'); date.textContent = formatDate(result.date); const status = document.createElement('strong'); status.textContent = labels[result.status]; row.append(date, status); $('results').append(row);
   }
+  $('review-dates').hidden = !uncertain;
   $('result-panel').hidden = false; $('review-panel').hidden = true; $('confirmed').checked = false; $('result-panel').scrollIntoView({ behavior: 'smooth' });
 }));
+$('review-dates').addEventListener('click', () => {
+  if (busy || $('review-dates').hidden) return;
+  invalidateCheck();
+  $('result-panel').hidden = true;
+  $('review-panel').hidden = false;
+  $('review-dates').hidden = true;
+  $('review-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const firstDate = $('dates').querySelector('input');
+  firstDate?.focus();
+});
 $('another').addEventListener('click', () => { if (busy) return; $('result-panel').hidden = true; $('review-panel').hidden = true; $('app-panel').scrollIntoView({ behavior: 'smooth' }); $('screenshot').click(); });
 initialize();

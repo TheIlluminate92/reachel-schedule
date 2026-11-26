@@ -248,7 +248,7 @@ that must be resolved with the calendar/account owner, not bypassed.
 | `MAX_PARSES_PER_DAY` | Default 20, in memory per UTC day; restart resets it |
 | `DEMO_MODE` | `1` uses synthetic example and disables live provider calls |
 | `BIND_ADDRESS` | Compose host binding; default loopback |
-| `PORT` | Node listen port; leave 3080 with the supplied Compose mapping |
+| `PORT` | Node listen port and container health probe port. Leave 3080 with the supplied Compose mapping. |
 
 Sessions last up to 90 days or until logout or an app restart, and use
 HttpOnly/SameSite cookies, plus Secure over HTTPS. Logout revokes that session
@@ -264,7 +264,12 @@ Upload limit: 10 MB; PNG/JPEG/WebP. Review supports up to 62 work dates in a
 The app sends no notifications or invitations. Existing calendar reminder
 defaults can apply to new events. It does not remove duplicates that predate
 the app, automatically reconcile removed work nights, or automatically repeat
-uncertain writes. An **Unconfirmed** result requires checking Google Calendar.
+uncertain writes. The app validates every Calendar list page before making a
+write. An incomplete read stops the import. An ambiguous write gets one read by
+its stable event ID. Check **Unconfirmed** dates directly in Google Calendar
+before any retry. **Review dates** returns to the same editable dates after a
+conflict or unconfirmed result and clears the prior confirmation. If a
+replacement screenshot is rejected, choose a valid file before parsing again.
 
 ## Verification
 
