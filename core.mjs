@@ -145,8 +145,8 @@ export function visionRequest(bytes, mime, model, year) {
   };
 }
 export function readVisionResponse(response) {
-  const content = (response.output || []).flatMap(x => x.content || []);
-  if (response.status !== 'completed' || content.some(x => x.type === 'refusal')) throw new AppError('The image could not be read completely. No calendar changes were made.', 422);
+  const content = (response?.output || []).flatMap(x => x.content || []);
+  if (response?.status !== 'completed' || content.some(x => x.type === 'refusal')) throw new AppError('The image could not be read completely. No calendar changes were made.', 422);
   let parsed;
   try { parsed = JSON.parse(content.filter(x => x.type === 'output_text').map(x => x.text).join('')); }
   catch { throw new AppError('The image reader returned an invalid result. No calendar changes were made.', 502); }

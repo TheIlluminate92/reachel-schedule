@@ -6,6 +6,19 @@ The project now has an MIT license and matching package metadata. Future contain
 
 ## Unreleased
 
+### 2026-11-26 Calendar and review candidate
+
+- Require valid Calendar list pages and pagination before importing. Verify the
+  insert acknowledgment against the stable event ID and shift times. Ambiguous
+  writes get one event lookup and retain the existing conflict or unconfirmed
+  outcomes when appropriate.
+- Clear rejected replacement screenshots and their previews before another parse.
+  Return from partial import results to the existing dates with confirmation and
+  calendar preview reset.
+- Use the configured container port for the Docker health probe.
+- Verified with offline Calendar and browser fixtures. Image qualification,
+  deployment, approved HTTPS and provider/phone acceptance are separate.
+
 ### 2026-11-22 schedule corrections
 
 - Include a highlighted white-dot date only when a visible assigned work card

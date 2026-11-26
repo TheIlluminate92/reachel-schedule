@@ -18,6 +18,15 @@ provider fixtures and do not contact OpenAI or Google.
   container stop timing is checked in Linux CI; Unraid update timing remains
   a separate live check.
 
+## November 26 candidate acceptance
+
+Verify the candidate image with both the default internal port and an alternate
+internal port. Use an isolated synthetic configuration. For phone acceptance,
+check invalid replacement, preserved editable dates after a partial import,
+and a fresh confirmation before submission. Calendar provider and phone
+acceptance remain separate from synthetic checks. The November 22 R730
+deployment is recorded in the host handbook.
+
 ## Check in this order
 
 1. Open the app on her phone on home Wi-Fi. Sign in, reload, and confirm the

@@ -5,7 +5,7 @@ import { writeFile, unlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServices } from '../services.mjs';
-import { CALENDAR_ID } from '../core.mjs';
+import { CALENDAR_ID, makeEvent } from '../core.mjs';
 
 test('Google authentication signs a valid JWT and pagination remains on the fixed calendar', async () => {
   const { privateKey, publicKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
@@ -29,7 +29,9 @@ test('Google authentication signs a valid JWT and pagination remains on the fixe
       assert.equal(options.headers.Authorization, 'Bearer fixture-token');
       assert.equal(parsed.searchParams.get('timeMin'), '2026-10-01T00:00:00Z');
       pages++;
-      return { ok: true, json: async () => pages === 1 ? { items: [{ id: 'first' }], nextPageToken: 'page-two' } : { items: [{ id: 'second' }] } };
+      return { ok: true, json: async () => pages === 1 ?
+        { kind: 'calendar#events', items: [{ ...makeEvent('2026-10-21'), id: 'first' }], nextPageToken: 'page-two' } :
+        { kind: 'calendar#events', items: [{ ...makeEvent('2026-10-22'), id: 'second' }] } };
     });
     const result = await service.calendar.list('2026-10-01T00:00:00Z', '2026-11-01T00:00:00Z');
     assert.deepEqual(result.map(x => x.id), ['first', 'second']);
