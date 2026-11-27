@@ -46,6 +46,34 @@ This version uses a home-screen shortcut and file picker. Native Android/iOS
 It does not automatically delete or edit previously imported shifts; schedule
 corrections need explicit review. Green-only dates never authorize deletion.
 
+## Learn with synthetic data
+
+Use a local development copy with Node.js 24 or newer. Open a terminal in
+the repository root, the folder that contains `README.md` and `package.json`.
+This exercise needs no npm dependencies, Docker daemon, OpenAI key, or Google
+credentials.
+
+1. Run `node --version` and check for version 24 or newer.
+2. Read [the example settings](.env.example). They are placeholders. Leave
+   the installed app and its configuration alone.
+3. Run `node --test`. The tests use invented inputs and mocked providers.
+   Windows skips the POSIX shutdown check, which runs in the Linux image build.
+4. Open [the shift tests](test/core.test.mjs) and find a conflict case. A shift
+   with a different time is held for review, so the existing event is preserved.
+
+Use the test name, Node version, and source revision when reporting a failure.
+The exercise uses the test runner alone and never starts a connected app.
+
+## Find the source
+
+| File | What it handles |
+| --- | --- |
+| [server.mjs](server.mjs) | HTTP routes, sessions, configuration, and request limits. |
+| [core.mjs](core.mjs) | Dates, conflicts, and duplicate-safe import decisions. |
+| [services.mjs](services.mjs) | OpenAI and Google Calendar adapters. |
+| [public/app.js](public/app.js) | Upload, review, confirmation, and results. |
+| [SECURITY.md](SECURITY.md) | Authentication and private configuration. |
+
 ## Schedule rules
 
 - Blue dot: scheduled work night. Green dot: ignore. Both dots: count blue.
