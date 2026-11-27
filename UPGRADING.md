@@ -140,6 +140,26 @@ PHP
 
 ## Rollback
 
+### Recovery checklist
+
+1. Confirm the operator's approved scope and the exact recovery image digest.
+   Keep a verified copy of the current compatible configuration, with its
+   ownership and permissions, and the matching template, startup entries,
+   mounts, resource limits, and security settings. Keep recovery copies in
+   protected private storage. Stop if the image or recovery set is unverified.
+2. Keep the predecessor available. Stop the current app and confirm it has
+   stopped before starting another instance. Use the verified image and
+   current compatible data with one app instance.
+3. If recovery covers an origin or HTTPS change, coordinate the existing
+   listener and resolver rollback with their owners. Verify the image,
+   configuration, health, and expected anonymous rejection on the intended
+   route. Restart clears sessions, so signed-in checks require a fresh login.
+4. Record the result and the acceptance still owed. A saved checkpoint does
+   not establish a full restore, off-host recovery, or live provider access.
+   For an uncertain import, check Calendar before retrying.
+
+### Choose the rollback scope
+
 Use the installation's retained template, startup settings and previous
 working image digest from the host operator's recovery record. A commit tag
 can help locate the image. For an approved rollback, stop the current instance

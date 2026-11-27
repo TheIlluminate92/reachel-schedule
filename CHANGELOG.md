@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-27 — Guide consolidation
+
+- Add a [provider-free exercise](README.md#learn-with-synthetic-data) and
+  [source map](README.md#find-the-source) for development readers.
+- Add a [recovery checklist](UPGRADING.md#recovery-checklist) covering current
+  compatible state, the exact recovery image, and separate acceptance checks.
+  The November 26 installation and recovery evidence retain their original date.
+
 ## Unreleased — licensing maintenance (2026-11-13)
 
 The project now has an MIT license and matching package metadata. Future container builds copy LICENSE into /app. Node and Alpine keep their own licenses; this change does not rebuild or deploy an image. See [LICENSING.md](LICENSING.md). No runtime behavior or existing release asset changed.
