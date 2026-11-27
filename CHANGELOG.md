@@ -4,9 +4,7 @@
 
 The project now has an MIT license and matching package metadata. Future container builds copy LICENSE into /app. Node and Alpine keep their own licenses; this change does not rebuild or deploy an image. See [LICENSING.md](LICENSING.md). No runtime behavior or existing release asset changed.
 
-## Unreleased
-
-### 2026-11-26 Calendar and review candidate
+## 2026-11-26 — Calendar and review release
 
 - Require valid Calendar list pages and pagination before importing. Verify the
   insert acknowledgment against the stable event ID and shift times. Ambiguous
@@ -16,10 +14,14 @@ The project now has an MIT license and matching package metadata. Future contain
   Return from partial import results to the existing dates with confirmation and
   calendar preview reset.
 - Use the configured container port for the Docker health probe.
-- Verified with offline Calendar and browser fixtures. Image qualification,
-  deployment, approved HTTPS and provider/phone acceptance are separate.
+- [PR #7](https://github.com/TheIlluminate92/reachel-schedule/pull/7) landed at
+  [`e0f6bf9`](https://github.com/TheIlluminate92/reachel-schedule/commit/e0f6bf97b655977456c0654c1879ea95c62d2445).
+  The [image publication run](https://github.com/TheIlluminate92/reachel-schedule/actions/runs/45874904473)
+  passed 49 tests and its asset, health, and shutdown checks. See the
+  [acceptance checklist](CHECKLIST.md#november-26-release-acceptance) for the
+  remaining phone, provider, and recovery checks.
 
-### 2026-11-22 schedule corrections
+## 2026-11-22 schedule corrections
 
 - Include a highlighted white-dot date only when a visible assigned work card
   matches the date. Ambiguous white dots go to human review.

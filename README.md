@@ -31,17 +31,15 @@ submissions, uncertain writes, authentication/CSRF, image byte forwarding,
 structured response handling, Google JWT signing, and paginated calendar reads.
 Provider responses in these tests are fixtures.
 
-**Live status:** installed on Unraid; the user successfully parsed a real
-Timpani screenshot and reviewed the returned dates. A Google JSON key has been
-downloaded. Live service-account reads and writes still need verification.
-The GitHub-built v0.3 image was deployed through Unraid's native updater;
-health and all six public assets were verified live. The v0.3.1 update simplifies
-the icon to a witch hat, crescent moon and a small heart. v0.3.2 adds explicit
-shutdown handling and a timed Docker stop check. The latest image still needs
-an Unraid update and phone visual check. The Docker page has retained its
-question-mark fallback even while the PNG endpoint responds correctly; see
-[UPGRADING.md](UPGRADING.md) for the targeted cache refresh. The user reports
-the app's functions work; the latest live checks here did not create events.
+The [November 26 release](CHANGELOG.md#2026-11-26--calendar-and-review-release)
+passed image publication checks. Use the [acceptance checklist](CHECKLIST.md)
+for phone and provider verification, and the [rollback guide](UPGRADING.md#rollback)
+before changing an installation. The host operator keeps the exact installed
+image, origin, and recovery checkpoint in the private operating record.
+
+If sign-in is rejected, compare the exact browser address with `PUBLIC_URL`
+and check the [security guide](SECURITY.md). For unexpected dates or conflicts,
+review the screenshot against the editable dates before confirming an import.
 
 This version uses a home-screen shortcut and file picker. Native Android/iOS
 **Share → Send Schedule** is a later step after the phone platform is known.

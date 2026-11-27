@@ -18,14 +18,17 @@ provider fixtures and do not contact OpenAI or Google.
   container stop timing is checked in Linux CI; Unraid update timing remains
   a separate live check.
 
-## November 26 candidate acceptance
+## November 26 release acceptance
 
-Verify the candidate image with both the default internal port and an alternate
-internal port. Use an isolated synthetic configuration. For phone acceptance,
-check invalid replacement, preserved editable dates after a partial import,
-and a fresh confirmation before submission. Calendar provider and phone
-acceptance remain separate from synthetic checks. The November 22 R730
-deployment is recorded in the host handbook.
+The [published image](CHANGELOG.md#2026-11-26--calendar-and-review-release)
+passed its default-port health check. A separate isolated exact-image check
+covered the alternate internal port. The installation's private operating
+record holds its image identity, HTTPS acceptance, and recovery checkpoint.
+Phone sign-in, live calendar-provider acceptance, and an independent restore
+remain to be verified for this release.
+
+For phone acceptance, check invalid replacement screenshots, editable dates
+after a partial import, and fresh confirmation before submission.
 
 ## Check in this order
 
