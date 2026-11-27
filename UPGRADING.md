@@ -140,9 +140,14 @@ PHP
 
 ## Rollback
 
-Set Repository to the previous working
-`ghcr.io/theilluminate92/reachel-schedule:sha-<full commit>` tag or digest and
-Apply. Preserve /config and environment values. Return to latest to resume updates.
+Use the installation's retained template, startup settings and previous
+working image digest from the host operator's recovery record. A commit tag
+can help locate the image. For an approved rollback, stop the current instance
+before starting the predecessor. Preserve current compatible `/config` data
+and credentials. Restore the prior origin and listener if the rollback includes
+an HTTPS change, then verify health and anonymous access on the intended route.
+Coordinate any resolver change with the network owner. An image rollback does
+not undo calendar changes.
 
 To undo the initial migration, restore the saved template with node:24-alpine
 and its read-only /app mapping to the preserved original app directory, then
